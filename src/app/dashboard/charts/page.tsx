@@ -20,6 +20,7 @@ export default function ChartsPage() {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [farm, setFarm] = useState<Farm | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -53,6 +54,7 @@ export default function ChartsPage() {
         .order("created_at", { ascending: true });
 
       setReadings((readingsRow ?? []) as Reading[]);
+      setLastUpdated(new Date());
       if (isInitial) setLoading(false);
     };
 
@@ -97,13 +99,20 @@ export default function ChartsPage() {
             </button>
           ))}
         </div>
-        <a
-          href="/api/export"
-          className="btn-secondary text-sm !py-2 !px-3"
-          download
-        >
-          <Download size={14} /> CSV
-        </a>
+        <div className="flex items-center gap-2">
+          {lastUpdated && (
+            <span className="text-xs text-muted">
+              Updated {lastUpdated.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })}
+            </span>
+          )}
+          <a
+            href="/api/export"
+            className="btn-secondary text-sm !py-2 !px-3"
+            download
+          >
+            <Download size={14} /> CSV
+          </a>
+        </div>
       </div>
 
       {loading ? (
