@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LineChart, Bell, Settings } from "lucide-react";
+import { Home, LineChart, Bell, Settings, Sprout } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/charts", label: "Charts", icon: LineChart },
+  { href: "/dashboard/assistant", label: "AI", icon: Sprout },
   { href: "/dashboard/alerts", label: "Alerts", icon: Bell },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
@@ -16,7 +17,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-card border-t border-[var(--border)] pb-[env(safe-area-inset-bottom)]">
-      <ul className="grid grid-cols-4">
+      <ul className="grid grid-cols-5">
         {items.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/dashboard"
