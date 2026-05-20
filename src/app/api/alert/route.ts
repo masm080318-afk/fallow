@@ -92,6 +92,15 @@ export async function POST(request: Request) {
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_PHONE_NUMBER;
 
+  // Log the attempt first so throttling works even if SMS fails.
+  if (!isTest) {
+    await svc.from("alerts_log").insert({
+      farm_id: farm.id,
+      alert_type: "low_moisture",
+      moisture_at_alert: moisture,
+    });
+  }
+
   let smsSent = false;
   if (
     sid &&
@@ -107,20 +116,19 @@ export async function POST(request: Request) {
       smsSent = true;
     } catch (e) {
       console.error("Twilio error:", e);
-      return NextResponse.json(
-        { error: "SMS send failed" },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: "SMS send failed" }, { status: 502 });
     }
   } else {
     console.log("[DEV] Twilio not configured. Would send SMS:", message);
   }
 
-  await svc.from("alerts_log").insert({
-    farm_id: farm.id,
-    alert_type: isTest ? "test" : "low_moisture",
-    moisture_at_alert: isTest ? null : moisture,
-  });
+  if (isTest) {
+    await svc.from("alerts_log").insert({
+      farm_id: farm.id,
+      alert_type: "test",
+      moisture_at_alert: null,
+    });
+  }
 
   return NextResponse.json({ ok: true, sms_sent: smsSent, message });
 }
