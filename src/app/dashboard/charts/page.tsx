@@ -70,7 +70,7 @@ export default function ChartsPage() {
       const d = new Date(r.created_at);
       const label =
         range === "24h"
-          ? d.toLocaleTimeString([], { hour: "numeric" })
+          ? d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
           : d.toLocaleDateString([], { month: "short", day: "numeric" });
       return {
         t: d.getTime(),

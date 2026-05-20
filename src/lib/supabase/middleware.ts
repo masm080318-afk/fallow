@@ -41,8 +41,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage && !path.startsWith("/auth/callback")) {
-    // Logged in users hitting /login should head to dashboard.
+  // Logged-in users hitting / or /login go straight to dashboard.
+  if (user && (path === "/" || (isAuthPage && !path.startsWith("/auth/callback")))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
