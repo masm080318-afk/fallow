@@ -22,21 +22,24 @@ export default function ChartsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    const supabase = createClient();
+    let farmId: string | null = null;
+
+    const load = async (isInitial = false) => {
+      if (isInitial) setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: farmRow } = await supabase
-        .from("farms")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-      if (!farmRow) return;
-      setFarm(farmRow as Farm);
+      if (!farmId) {
+        const { data: farmRow } = await supabase
+          .from("farms")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+        if (!farmRow) return;
+        setFarm(farmRow as Farm);
+        farmId = farmRow.id;
+      }
 
       const since = new Date(
         Date.now() - ranges.find((r) => r.key === range)!.ms
@@ -45,14 +48,19 @@ export default function ChartsPage() {
       const { data: readingsRow } = await supabase
         .from("readings")
         .select("*")
-        .eq("farm_id", farmRow.id)
+        .eq("farm_id", farmId)
         .gte("created_at", since)
         .order("created_at", { ascending: true });
 
       setReadings((readingsRow ?? []) as Reading[]);
-      setLoading(false);
+      if (isInitial) setLoading(false);
     };
-    load();
+
+    load(true);
+
+    // Refresh every 30 seconds to match ESP32 send interval
+    const interval = setInterval(() => load(false), 30000);
+    return () => clearInterval(interval);
   }, [range]);
 
   const data = useMemo(() => {
