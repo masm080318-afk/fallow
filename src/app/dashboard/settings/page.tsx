@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [newNodeName, setNewNodeName] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const [nodeError, setNodeError] = useState<string | null>(null);
 
   const load = async () => {
     const supabase = createClient();
@@ -60,6 +61,7 @@ export default function SettingsPage() {
 
   const addNode = async () => {
     if (!farm || !newNodeId.trim()) return;
+    setNodeError(null);
     const supabase = createClient();
     const { data, error } = await supabase
       .from("sensor_nodes")
@@ -70,7 +72,15 @@ export default function SettingsPage() {
       })
       .select("*")
       .single();
-    if (data && !error) {
+    if (error) {
+      if (error.code === "23505") {
+        setNodeError(`Node ID "${newNodeId.trim()}" already exists. Each sensor needs a unique ID.`);
+      } else {
+        setNodeError(error.message);
+      }
+      return;
+    }
+    if (data) {
       setNodes((n) => [...n, data as SensorNode]);
       setNewNodeId("");
       setNewNodeName("");
@@ -195,6 +205,9 @@ export default function SettingsPage() {
           >
             <Plus size={16} /> Add sensor
           </button>
+          {nodeError && (
+            <p className="text-sm text-center mt-2" style={{ color: "var(--red)" }}>{nodeError}</p>
+          )}
         </div>
       </div>
     </main>
