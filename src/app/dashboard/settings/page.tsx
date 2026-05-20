@@ -65,19 +65,15 @@ export default function SettingsPage() {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("sensor_nodes")
-      .insert({
+      .upsert({
         farm_id: farm.id,
         node_id: newNodeId.trim(),
         name: newNodeName.trim() || "Sensor",
-      })
+      }, { onConflict: "node_id" })
       .select("*")
       .single();
     if (error) {
-      if (error.code === "23505") {
-        setNodeError(`Node ID "${newNodeId.trim()}" already exists. Each sensor needs a unique ID.`);
-      } else {
-        setNodeError(error.message);
-      }
+      setNodeError(error.message);
       return;
     }
     if (data) {
