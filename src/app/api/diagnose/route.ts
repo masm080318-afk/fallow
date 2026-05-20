@@ -120,7 +120,7 @@ Respond ONLY with a single JSON object, no prose, with these exact keys:
 }`;
 
       const response = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-5",
         max_tokens: 400,
         system:
           "You are an expert agricultural advisor helping small farmers interpret soil sensor data. Be practical, concise, and confident. Always respond with a single valid JSON object and nothing else.",
