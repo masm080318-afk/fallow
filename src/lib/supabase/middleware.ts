@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/login") || path.startsWith("/auth/callback");
   const isProtected =
     path.startsWith("/dashboard") || path.startsWith("/onboarding");
+  const isHome = path === "/";
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
@@ -42,7 +43,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Logged-in users hitting / or /login go straight to dashboard.
-  if (user && (path === "/" || (isAuthPage && !path.startsWith("/auth/callback")))) {
+  if (user && (isHome || (isAuthPage && !path.startsWith("/auth/callback")))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
