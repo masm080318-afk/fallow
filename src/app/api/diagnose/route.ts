@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 interface DiagnosisBody {
   farm_id: string;
   node_id?: string;
-  moisture: number;
-  temperature: number;
+  moisture?: number;
+  temperature?: number;
   history?: { moisture: number; temperature: number; created_at: string }[];
 }
 
@@ -67,17 +67,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const {
-    farm_id,
-    node_id,
-    moisture,
-    temperature,
-    history = [],
-  } = body;
+  const { farm_id, node_id } = body;
+  if (!farm_id) return NextResponse.json({ error: "Missing farm_id" }, { status: 400 });
 
-  if (!farm_id || moisture === undefined || temperature === undefined) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-  }
+  // Fetch latest reading from DB if not provided directly
+  const svcEarly = createServiceClient();
+  const { data: latestReading } = await svcEarly
+    .from("readings")
+    .select("*")
+    .eq("farm_id", farm_id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const moisture = body.moisture ?? latestReading?.moisture_percent ?? 0;
+  const temperature = body.temperature ?? latestReading?.temperature_f ?? 0;
+
+  const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const { data: historyRows } = await svcEarly
+    .from("readings")
+    .select("moisture_percent, temperature_f, created_at")
+    .eq("farm_id", farm_id)
+    .gte("created_at", since)
+    .order("created_at", { ascending: true });
+
+  const history = (historyRows ?? []).map((r) => ({
+    moisture: r.moisture_percent,
+    temperature: r.temperature_f,
+    created_at: r.created_at,
+  }));
 
   const trend = calcTrend(history);
   const hourOfDay = new Date().getHours();
@@ -147,10 +165,9 @@ Respond ONLY with a single JSON object, no prose, with these exact keys:
     }
   }
 
-  // Persist diagnosis using service client (caller may be unauthenticated webhook).
+  // Persist diagnosis
   try {
-    const svc = createServiceClient();
-    await svc.from("diagnoses").insert({
+    await svcEarly.from("diagnoses").insert({
       farm_id,
       node_id: node_id ?? null,
       status: parsed.status,

@@ -50,7 +50,7 @@ export default async function DashboardPage() {
         node={primaryNode}
         farmId={farm!.id}
       />
-      <AIDiagnosisCard diagnosis={latestDiagnosis as Diagnosis | null} />
+      <AIDiagnosisCard diagnosis={latestDiagnosis as Diagnosis | null} farmId={farm!.id} />
       <IrrigationPrediction diagnosis={latestDiagnosis as Diagnosis | null} />
       <PWAPrompt />
     </main>

@@ -84,40 +84,14 @@ export async function POST(request: Request) {
     .eq("id", node.farm_id)
     .single();
 
-  const tasks: Promise<unknown>[] = [];
-
-  tasks.push(
-    fetch(`${origin}/api/diagnose`, {
+  // Only send SMS alert automatically — diagnosis is triggered manually by user.
+  if (farm && farm.alerts_enabled !== false && moisturePct < farm.alert_threshold) {
+    await fetch(`${origin}/api/alert`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        farm_id: node.farm_id,
-        node_id,
-        moisture: moisturePct,
-        temperature: temp,
-        history: historyPayload,
-      }),
-    }).catch((e) => console.error("diagnose call failed:", e))
-  );
-
-  if (
-    farm &&
-    farm.alerts_enabled !== false &&
-    moisturePct < farm.alert_threshold
-  ) {
-    tasks.push(
-      fetch(`${origin}/api/alert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          farm_id: node.farm_id,
-          moisture: moisturePct,
-        }),
-      }).catch((e) => console.error("alert call failed:", e))
-    );
+      body: JSON.stringify({ farm_id: node.farm_id, moisture: moisturePct }),
+    }).catch((e) => console.error("alert call failed:", e));
   }
-
-  await Promise.allSettled(tasks);
 
   return NextResponse.json({ ok: true });
 }
