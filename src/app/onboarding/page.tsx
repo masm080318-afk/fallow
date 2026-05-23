@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Sprout, ArrowRight, ArrowLeft, Copy, Check } from "lucide-react";
@@ -16,6 +16,22 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // If this user already has a farm, skip straight to dashboard.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from("farms")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle()
+        .then(({ data: farm }) => {
+          if (farm) router.replace("/dashboard");
+        });
+    });
+  }, [router]);
 
   const ingestUrl =
     typeof window !== "undefined"

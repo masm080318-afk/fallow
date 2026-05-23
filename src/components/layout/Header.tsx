@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sprout, LogOut } from "lucide-react";
+import { Sprout, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -36,13 +36,22 @@ export default function Header({ farmName }: { farmName?: string }) {
           </span>
         )}
       </Link>
-      <button
-        onClick={signOut}
-        className="text-muted hover:text-foreground transition-all duration-200 hover:scale-110 !min-h-0 !p-2 !bg-transparent !border-0 rounded-lg hover:bg-white/5"
-        aria-label="Sign out"
-      >
-        <LogOut size={17} />
-      </button>
+      <div className="flex items-center gap-1">
+        <Link
+          href="/dashboard/settings"
+          className="text-muted hover:text-foreground transition-all duration-200 hover:scale-110 !min-h-0 !p-2 !bg-transparent !border-0 rounded-lg hover:bg-white/5"
+          aria-label="Settings"
+        >
+          <Settings size={17} />
+        </Link>
+        <button
+          onClick={signOut}
+          className="text-muted hover:text-foreground transition-all duration-200 hover:scale-110 !min-h-0 !p-2 !bg-transparent !border-0 rounded-lg hover:bg-white/5"
+          aria-label="Sign out"
+        >
+          <LogOut size={17} />
+        </button>
+      </div>
     </header>
   );
 }

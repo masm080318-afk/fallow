@@ -15,6 +15,12 @@ interface Props {
 export default function FarmStatusCard({ initialReading, node, farmId }: Props) {
   const [reading, setReading] = useState<Reading | null>(initialReading);
   const [online, setOnline] = useState(true);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
@@ -58,7 +64,7 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
             {node?.name ?? "Farm Status"}
           </p>
           <p className="text-xs text-muted mt-0.5">
-            {reading ? `Updated ${timeAgo(reading.created_at)}` : "Waiting for sensor…"}
+            {reading ? `Updated ${timeAgo(reading.created_at, now)}` : "Waiting for sensor…"}
           </p>
         </div>
         <span className={`flex items-center gap-1.5 text-xs font-medium ${online ? "text-green" : "text-muted"}`}>
@@ -105,8 +111,8 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   );
 }
 
-function timeAgo(iso: string) {
-  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+function timeAgo(iso: string, now = Date.now()) {
+  const s = Math.floor((now - new Date(iso).getTime()) / 1000);
   if (s < 60) return `${s}s ago`;
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m ago`;
