@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_PHONE_NUMBER;
+  const from = process.env.TWILIO_FROM ?? process.env.TWILIO_PHONE_NUMBER;
 
   // Log the attempt first so throttling works even if SMS fails.
   if (!isTest) {
