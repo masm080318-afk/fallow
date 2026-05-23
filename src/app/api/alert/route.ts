@@ -101,25 +101,21 @@ export async function POST(request: Request) {
     });
   }
 
+  if (!sid || !token || !from) {
+    const missing = [!sid && "TWILIO_ACCOUNT_SID", !token && "TWILIO_AUTH_TOKEN", !from && "TWILIO_FROM"].filter(Boolean);
+    console.error("Twilio env vars missing:", missing);
+    return NextResponse.json({ error: `Missing env vars: ${missing.join(", ")}` }, { status: 500 });
+  }
+
   let smsSent = false;
-  if (
-    sid &&
-    token &&
-    from &&
-    !sid.startsWith("YOUR_") &&
-    !token.startsWith("YOUR_") &&
-    !from.includes("XXXX")
-  ) {
-    try {
-      const client = twilio(sid, token);
-      await client.messages.create({ from, to: farm.phone, body: message });
-      smsSent = true;
-    } catch (e) {
-      console.error("Twilio error:", e);
-      return NextResponse.json({ error: "SMS send failed" }, { status: 502 });
-    }
-  } else {
-    console.log("[DEV] Twilio not configured. Would send SMS:", message);
+  try {
+    const client = twilio(sid, token);
+    await client.messages.create({ from, to: farm.phone, body: message });
+    smsSent = true;
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("Twilio error:", msg);
+    return NextResponse.json({ error: `Twilio: ${msg}` }, { status: 502 });
   }
 
   if (isTest) {
