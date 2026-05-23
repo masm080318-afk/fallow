@@ -32,7 +32,7 @@ export default function AIDiagnosisCard({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Diagnosis failed");
-      setDiagnosis(json.diagnosis);
+      setDiagnosis(json);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     }
