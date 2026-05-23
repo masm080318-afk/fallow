@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSvcClient } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
@@ -50,8 +51,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && (path.startsWith("/dashboard") || path === "/onboarding")) {
-    // Check farm existence to gate onboarding vs dashboard.
-    const { data: farm } = await supabase
+    // Use service role so missing RLS policies don't block the farm lookup.
+    const svc = createSvcClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+    const { data: farm } = await svc
       .from("farms")
       .select("id")
       .eq("user_id", user.id)

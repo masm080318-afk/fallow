@@ -35,15 +35,10 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   }, [farmId]);
 
   useEffect(() => {
-    if (!reading) return;
-    const check = () => {
-      const age = Date.now() - new Date(reading.created_at).getTime();
-      setOnline(age < 35 * 60 * 1000);
-    };
-    check();
-    const t = setInterval(check, 30_000);
-    return () => clearInterval(t);
-  }, [reading]);
+    if (!reading) { setOnline(false); return; }
+    const age = now - new Date(reading.created_at).getTime();
+    setOnline(age < 35 * 60 * 1000);
+  }, [reading, now]);
 
   const moisture = reading?.moisture_percent ?? 0;
   const temp = reading?.temperature_f ?? 0;
