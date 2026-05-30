@@ -60,20 +60,6 @@ export async function POST(request: Request) {
   // We await briefly so errors are logged, but use Promise.allSettled to not block on either.
   const origin = new URL(request.url).origin;
 
-  const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
-  const { data: history } = await svc
-    .from("readings")
-    .select("moisture_percent, temperature_f, created_at")
-    .eq("farm_id", node.farm_id)
-    .gte("created_at", since)
-    .order("created_at", { ascending: true });
-
-  const historyPayload = (history ?? []).map((r) => ({
-    moisture: r.moisture_percent,
-    temperature: r.temperature_f,
-    created_at: r.created_at,
-  }));
-
   const { data: farm } = await svc
     .from("farms")
     .select("alert_threshold, alerts_enabled")
