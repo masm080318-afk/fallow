@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 interface IngestBody {
   node_id: string;
   moisture: number;
-  temp: number;
+  temp?: number;
   raw?: number;
 }
 
@@ -20,13 +20,9 @@ export async function POST(request: Request) {
   }
 
   const { node_id, moisture, temp, raw } = body;
-  if (
-    !node_id ||
-    typeof moisture !== "number" ||
-    typeof temp !== "number"
-  ) {
+  if (!node_id || typeof moisture !== "number") {
     return NextResponse.json(
-      { error: "Missing or invalid fields: node_id, moisture, temp" },
+      { error: "Missing or invalid fields: node_id, moisture" },
       { status: 400 }
     );
   }
@@ -52,7 +48,7 @@ export async function POST(request: Request) {
     node_id,
     farm_id: node.farm_id,
     moisture_percent: moisturePct,
-    temperature_f: temp,
+    temperature_f: typeof temp === "number" ? temp : null,
     raw_value: raw ?? null,
   });
 
