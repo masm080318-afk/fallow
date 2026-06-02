@@ -63,30 +63,24 @@ export default function SettingsPage() {
   const addNode = async () => {
     if (!farm || !newNodeId.trim()) return;
     setNodeError(null);
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("sensor_nodes")
-      .upsert({
-        farm_id: farm.id,
-        node_id: newNodeId.trim(),
-        name: newNodeName.trim() || "Sensor",
-      }, { onConflict: "node_id" })
-      .select("*")
-      .single();
-    if (error) {
-      setNodeError(error.message);
-      return;
-    }
-    if (data) {
-      setNodes((n) => [...n, data as SensorNode]);
-      setNewNodeId("");
-      setNewNodeName("");
-    }
+    const res = await fetch("/api/nodes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ node_id: newNodeId.trim(), name: newNodeName.trim() || "Sensor" }),
+    });
+    const json = await res.json();
+    if (!res.ok) { setNodeError(json.error ?? "Failed to add sensor"); return; }
+    setNodes((n) => [...n, json as SensorNode]);
+    setNewNodeId("");
+    setNewNodeName("");
   };
 
   const removeNode = async (id: string) => {
-    const supabase = createClient();
-    await supabase.from("sensor_nodes").delete().eq("id", id);
+    await fetch("/api/nodes", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     setNodes((n) => n.filter((x) => x.id !== id));
   };
 
