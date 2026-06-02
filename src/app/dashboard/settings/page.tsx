@@ -180,19 +180,32 @@ export default function SettingsPage() {
           {nodes.map((n) => (
             <li
               key={n.id}
-              className="flex items-center justify-between bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2"
+              className="bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 space-y-1.5"
             >
-              <div>
-                <div className="font-medium text-sm">{n.name}</div>
-                <div className="text-xs text-muted">{n.node_id}</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-sm">{n.name}</div>
+                  <div className="text-xs text-muted">{n.node_id}</div>
+                </div>
+                <button
+                  onClick={() => removeNode(n.id)}
+                  className="text-muted hover:text-red transition-colors"
+                  aria-label="Remove sensor"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button
-                onClick={() => removeNode(n.id)}
-                className="text-muted hover:text-red transition-colors"
-                aria-label="Remove sensor"
-              >
-                <Trash2 size={16} />
-              </button>
+              {/* Device ID to flash into ESP32 */}
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-[10px] text-muted bg-black/30 rounded px-2 py-1 break-all">{n.id}</code>
+                <button
+                  onClick={() => { navigator.clipboard.writeText(n.id); }}
+                  className="text-muted hover:text-green transition-colors shrink-0"
+                  title="Copy Device ID for Arduino"
+                >
+                  <Copy size={13} />
+                </button>
+              </div>
             </li>
           ))}
         </ul>

@@ -31,21 +31,23 @@ export async function POST(request: Request) {
 
   const svc = createServiceClient();
 
+  // node_id in the payload is the sensor's UUID (from Settings → copy device ID).
+  // This is globally unique so no farm_id is needed.
   const { data: node, error: nodeErr } = await svc
     .from("sensor_nodes")
-    .select("id, farm_id, name")
-    .eq("node_id", node_id)
+    .select("id, farm_id, name, node_id")
+    .eq("id", node_id)
     .maybeSingle();
 
   if (nodeErr || !node) {
     return NextResponse.json(
-      { error: "Unknown node_id. Add this sensor in Settings first." },
+      { error: "Unknown device ID. Copy the Device ID from Settings and flash it to your ESP32." },
       { status: 404 }
     );
   }
 
   const { error: insErr } = await svc.from("readings").insert({
-    node_id,
+    node_id: node.node_id, // store the display name, not the UUID
     farm_id: node.farm_id,
     moisture_percent: moisturePct,
     temperature_f: typeof temp === "number" ? temp : null,
