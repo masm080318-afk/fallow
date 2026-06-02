@@ -34,13 +34,11 @@ export async function POST(request: Request) {
 
   // Look up by (node_id + farm_id) when provided — required now that node_id
   // is only unique per farm, not globally.
-  let nodeQuery = svc
-    .from("sensor_nodes")
-    .select("id, farm_id, name")
-    .eq("node_id", node_id);
-  if (farm_id) nodeQuery = nodeQuery.eq("farm_id", farm_id);
-
-  const { data: node, error: nodeErr } = await nodeQuery.maybeSingle();
+  const { data: node, error: nodeErr } = await (
+    farm_id
+      ? svc.from("sensor_nodes").select("id, farm_id, name").eq("node_id", node_id).eq("farm_id", farm_id)
+      : svc.from("sensor_nodes").select("id, farm_id, name").eq("node_id", node_id)
+  ).maybeSingle();
 
   if (nodeErr) {
     // maybeSingle errors when multiple rows match — node_id is ambiguous across farms
