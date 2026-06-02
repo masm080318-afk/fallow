@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 
 interface IngestBody {
   node_id: string;
+  farm_id?: string;   // required when multiple farms share the same node_id
   moisture: number;
   temp?: number;
   raw?: number;
@@ -19,10 +20,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { node_id, moisture, temp, raw } = body;
+  const { node_id, farm_id, moisture, temp, raw } = body;
   if (!node_id || typeof moisture !== "number") {
     return NextResponse.json(
-      { error: "Missing or invalid fields: node_id, moisture" },
+      { error: "Missing fields: node_id, moisture" },
       { status: 400 }
     );
   }
@@ -31,15 +32,26 @@ export async function POST(request: Request) {
 
   const svc = createServiceClient();
 
-  const { data: node, error: nodeErr } = await svc
+  // Look up by (node_id + farm_id) when provided — required now that node_id
+  // is only unique per farm, not globally.
+  let nodeQuery = svc
     .from("sensor_nodes")
     .select("id, farm_id, name")
-    .eq("node_id", node_id)
-    .maybeSingle();
+    .eq("node_id", node_id);
+  if (farm_id) nodeQuery = nodeQuery.eq("farm_id", farm_id);
 
-  if (nodeErr || !node) {
+  const { data: node, error: nodeErr } = await nodeQuery.maybeSingle();
+
+  if (nodeErr) {
+    // maybeSingle errors when multiple rows match — node_id is ambiguous across farms
     return NextResponse.json(
-      { error: "Unknown node_id. Add this sensor in Settings first." },
+      { error: "Ambiguous node_id — add farm_id to your payload. See Settings for your Farm ID." },
+      { status: 400 }
+    );
+  }
+  if (!node) {
+    return NextResponse.json(
+      { error: "Unknown node_id. Register this sensor in Settings first." },
       { status: 404 }
     );
   }

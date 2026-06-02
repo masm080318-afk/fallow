@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Farm, SensorNode } from "@/types";
-import { Save, Plus, Trash2 } from "lucide-react";
+import { Save, Plus, Trash2, Copy, Check } from "lucide-react";
 
 export default function SettingsPage() {
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [nodeError, setNodeError] = useState<string | null>(null);
+  const [copiedFarmId, setCopiedFarmId] = useState(false);
 
   const load = async () => {
     const supabase = createClient();
@@ -156,6 +157,24 @@ export default function SettingsPage() {
         {savedMsg && (
           <p className="text-sm text-green text-center">{savedMsg}</p>
         )}
+      </div>
+
+      {/* Farm ID — needed for ESP32 firmware when multiple farms share a node name */}
+      <div className="card space-y-2">
+        <h2 className="font-semibold">Farm ID</h2>
+        <p className="text-xs text-muted">Add this to your Arduino sketch so the sensor knows which farm it belongs to. Required when two accounts use the same Node ID.</p>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all text-muted">
+            {farm.id}
+          </code>
+          <button
+            onClick={() => { navigator.clipboard.writeText(farm.id); setCopiedFarmId(true); setTimeout(() => setCopiedFarmId(false), 1500); }}
+            className="btn-secondary !px-3"
+            aria-label="Copy Farm ID"
+          >
+            {copiedFarmId ? <Check size={15} className="text-green" /> : <Copy size={15} />}
+          </button>
+        </div>
       </div>
 
       <div className="card">
