@@ -1,14 +1,29 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /api/nodes — add a sensor node
-export async function POST(request: Request) {
+async function getUser(request: Request) {
+  const svc = createServiceClient();
+
+  // Try Bearer token first (mobile app)
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const { data: { user } } = await svc.auth.getUser(token);
+    if (user) return user;
+  }
+
+  // Fall back to cookie session (web app)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  return user ?? null;
+}
+
+// POST /api/nodes — add a sensor node
+export async function POST(request: Request) {
+  const user = await getUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { node_id, name } = await request.json();
@@ -16,13 +31,15 @@ export async function POST(request: Request) {
 
   const svc = createServiceClient();
 
-  // Verify the user has a farm
   const { data: farm } = await svc.from("farms").select("id").eq("user_id", user.id).single();
   if (!farm) return NextResponse.json({ error: "No farm found" }, { status: 404 });
 
   const { data, error } = await svc
     .from("sensor_nodes")
-    .upsert({ farm_id: farm.id, node_id: node_id.trim(), name: name?.trim() || "Sensor" }, { onConflict: "node_id" })
+    .upsert(
+      { farm_id: farm.id, node_id: node_id.trim(), name: name?.trim() || "Sensor" },
+      { onConflict: "node_id" }
+    )
     .select("*")
     .single();
 
@@ -32,8 +49,7 @@ export async function POST(request: Request) {
 
 // DELETE /api/nodes — remove a sensor node by id
 export async function DELETE(request: Request) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUser(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await request.json();
@@ -41,7 +57,6 @@ export async function DELETE(request: Request) {
 
   const svc = createServiceClient();
 
-  // Verify ownership before deleting
   const { data: node } = await svc.from("sensor_nodes").select("farm_id").eq("id", id).single();
   if (!node) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
