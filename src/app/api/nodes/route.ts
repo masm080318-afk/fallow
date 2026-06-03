@@ -36,10 +36,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await svc
     .from("sensor_nodes")
-    .upsert(
-      { farm_id: farm.id, node_id: node_id.trim(), name: name?.trim() || "Sensor" },
-      { onConflict: "node_id" }
-    )
+    .insert({ farm_id: farm.id, node_id: node_id.trim(), name: name?.trim() || "Sensor" })
     .select("*")
     .single();
 
