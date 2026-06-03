@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2, Camera } from "lucide-react";
+import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2, Camera, Radio } from "lucide-react";
 import type { Diagnosis } from "@/types";
 
 const statusConfig = {
@@ -20,6 +20,8 @@ export default function AIDiagnosisCard({
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(initialDiagnosis);
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [requestMsg, setRequestMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -71,9 +73,29 @@ export default function AIDiagnosisCard({
     setPhotoLoading(false);
   };
 
+  const requestLivePhoto = async () => {
+    setRequestLoading(true);
+    setRequestMsg(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/camera-command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ farm_id: farmId }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Failed");
+      setRequestMsg("📷 Photo requested — camera will capture within 30 seconds.");
+      setTimeout(() => setRequestMsg(null), 15000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+    }
+    setRequestLoading(false);
+  };
+
   const cfg = diagnosis ? (statusConfig[diagnosis.status] ?? statusConfig.Healthy) : null;
   const Icon = cfg?.icon;
-  const busy = loading || photoLoading;
+  const busy = loading || photoLoading || requestLoading;
 
   return (
     <div className={`card ${cfg?.border ?? ""}`} style={{ background: "linear-gradient(145deg, #141414, #0f0f0f)" }}>
@@ -110,6 +132,7 @@ export default function AIDiagnosisCard({
       )}
 
       {error && <p className="text-xs mb-3" style={{ color: "var(--red)" }}>{error}</p>}
+      {requestMsg && <p className="text-xs mb-3 text-green">{requestMsg}</p>}
 
       {/* Hidden file input */}
       <input
@@ -125,33 +148,26 @@ export default function AIDiagnosisCard({
         }}
       />
 
-      {/* Two buttons side by side */}
-      <div className="flex gap-2">
-        <button
-          onClick={runDiagnosis}
-          disabled={busy}
-          className="btn-primary flex-1"
-        >
-          {loading ? (
-            <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
-          ) : (
-            <><Sparkles size={14} /> {diagnosis ? "Re-run" : "Soil diagnosis"}</>
-          )}
+      {/* Buttons */}
+      <div className="flex gap-2 mb-2">
+        <button onClick={runDiagnosis} disabled={busy} className="btn-primary flex-1">
+          {loading
+            ? <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
+            : <><Sparkles size={14} /> {diagnosis ? "Re-run" : "Soil diagnosis"}</>}
         </button>
-
-        <button
-          onClick={() => fileRef.current?.click()}
-          disabled={busy}
-          className="btn-secondary flex-1"
-          title="Take or upload a photo of your crops for visual AI analysis"
-        >
-          {photoLoading ? (
-            <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
-          ) : (
-            <><Camera size={14} /> Photo diagnosis</>
-          )}
+        <button onClick={() => fileRef.current?.click()} disabled={busy} className="btn-secondary flex-1" title="Upload a crop photo for visual AI analysis">
+          {photoLoading
+            ? <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
+            : <><Camera size={14} /> Photo diagnosis</>}
         </button>
       </div>
+
+      {/* On-demand ESP32-CAM trigger */}
+      <button onClick={requestLivePhoto} disabled={busy} className="btn-secondary w-full" title="Tells your ESP32-CAM to take a photo now">
+        {requestLoading
+          ? <><Loader2 size={14} className="animate-spin" /> Requesting…</>
+          : <><Radio size={14} /> Request live camera photo</>}
+      </button>
     </div>
   );
 }
