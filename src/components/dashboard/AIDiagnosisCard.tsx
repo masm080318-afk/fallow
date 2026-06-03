@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
+import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2, Camera } from "lucide-react";
 import type { Diagnosis } from "@/types";
 
 const statusConfig = {
@@ -19,7 +19,9 @@ export default function AIDiagnosisCard({
 }) {
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(initialDiagnosis);
   const [loading, setLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const runDiagnosis = async () => {
     setLoading(true);
@@ -39,8 +41,39 @@ export default function AIDiagnosisCard({
     setLoading(false);
   };
 
+  const runPhotoDiagnosis = async (file: File) => {
+    setPhotoLoading(true);
+    setError(null);
+    try {
+      // Read file as base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Strip data URL prefix — only keep the base64 data
+          resolve(result.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const res = await fetch("/api/camera-ingest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ farm_id: farmId, image: base64 }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Photo diagnosis failed");
+      setDiagnosis(json);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+    }
+    setPhotoLoading(false);
+  };
+
   const cfg = diagnosis ? (statusConfig[diagnosis.status] ?? statusConfig.Healthy) : null;
   const Icon = cfg?.icon;
+  const busy = loading || photoLoading;
 
   return (
     <div className={`card ${cfg?.border ?? ""}`} style={{ background: "linear-gradient(145deg, #141414, #0f0f0f)" }}>
@@ -57,7 +90,7 @@ export default function AIDiagnosisCard({
 
       {diagnosis && Icon && cfg ? (
         <>
-          <div className={`flex items-start gap-3 ${cfg.bg} rounded-xl p-3 mb-3`} style={{ border: `1px solid`, borderColor: "rgba(255,255,255,0.05)" }}>
+          <div className={`flex items-start gap-3 ${cfg.bg} rounded-xl p-3 mb-3`} style={{ border: "1px solid", borderColor: "rgba(255,255,255,0.05)" }}>
             <Icon className={`${cfg.color} shrink-0 mt-0.5`} size={22} />
             <div>
               <h3 className={`font-bold ${cfg.color}`}>{diagnosis.status}</h3>
@@ -72,23 +105,53 @@ export default function AIDiagnosisCard({
         </>
       ) : (
         <p className="text-muted text-sm mb-3">
-          Tap below to get an AI read on your current soil conditions.
+          Run a diagnosis based on soil readings, or take a photo of your crops for visual AI analysis.
         </p>
       )}
 
       {error && <p className="text-xs mb-3" style={{ color: "var(--red)" }}>{error}</p>}
 
-      <button
-        onClick={runDiagnosis}
-        disabled={loading}
-        className="btn-primary w-full"
-      >
-        {loading ? (
-          <><Loader2 size={15} className="animate-spin" /> Analyzing…</>
-        ) : (
-          <><Sparkles size={15} /> {diagnosis ? "Re-run diagnosis" : "Run AI diagnosis"}</>
-        )}
-      </button>
+      {/* Hidden file input */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) runPhotoDiagnosis(file);
+          e.target.value = "";
+        }}
+      />
+
+      {/* Two buttons side by side */}
+      <div className="flex gap-2">
+        <button
+          onClick={runDiagnosis}
+          disabled={busy}
+          className="btn-primary flex-1"
+        >
+          {loading ? (
+            <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
+          ) : (
+            <><Sparkles size={14} /> {diagnosis ? "Re-run" : "Soil diagnosis"}</>
+          )}
+        </button>
+
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={busy}
+          className="btn-secondary flex-1"
+          title="Take or upload a photo of your crops for visual AI analysis"
+        >
+          {photoLoading ? (
+            <><Loader2 size={14} className="animate-spin" /> Analyzing…</>
+          ) : (
+            <><Camera size={14} /> Photo diagnosis</>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

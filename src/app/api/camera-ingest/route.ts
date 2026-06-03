@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 interface CameraBody {
-  device_id: string;   // sensor_nodes.id UUID
+  device_id?: string;  // sensor_nodes.id UUID (from ESP32-CAM hardware)
+  farm_id?: string;    // direct farm ID (from in-app photo upload)
   image: string;       // base64-encoded JPEG
 }
 
@@ -19,32 +20,42 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { device_id, image } = body;
-  if (!device_id || !image) {
-    return NextResponse.json({ error: "Missing device_id or image" }, { status: 400 });
+  const { device_id, farm_id: directFarmId, image } = body;
+  if (!image || (!device_id && !directFarmId)) {
+    return NextResponse.json({ error: "Missing image and device_id or farm_id" }, { status: 400 });
   }
 
   const svc = createServiceClient();
 
-  // Look up sensor node by UUID
-  const { data: node } = await svc
-    .from("sensor_nodes")
-    .select("id, farm_id, name, node_id")
-    .eq("id", device_id)
-    .maybeSingle();
+  let farmId: string;
+  let nodeDisplayId: string | null = null;
 
-  if (!node) {
-    return NextResponse.json(
-      { error: "Unknown device_id. Register this camera in Settings first." },
-      { status: 404 }
-    );
+  if (device_id) {
+    // Hardware ESP32-CAM — look up by sensor UUID
+    const { data: node } = await svc
+      .from("sensor_nodes")
+      .select("id, farm_id, name, node_id")
+      .eq("id", device_id)
+      .maybeSingle();
+
+    if (!node) {
+      return NextResponse.json(
+        { error: "Unknown device_id. Register this camera in Settings first." },
+        { status: 404 }
+      );
+    }
+    farmId = node.farm_id;
+    nodeDisplayId = node.node_id;
+  } else {
+    // In-app photo upload — use farm_id directly
+    farmId = directFarmId!;
   }
 
   // Get latest soil readings for context
   const { data: reading } = await svc
     .from("readings")
     .select("moisture_percent, temperature_f, created_at")
-    .eq("farm_id", node.farm_id)
+    .eq("farm_id", farmId)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -54,7 +65,7 @@ export async function POST(request: Request) {
   const { data: history } = await svc
     .from("readings")
     .select("moisture_percent, created_at")
-    .eq("farm_id", node.farm_id)
+    .eq("farm_id", farmId)
     .gte("created_at", since)
     .order("created_at", { ascending: true });
 
@@ -166,8 +177,8 @@ Respond ONLY with this JSON:
   const { data: saved } = await svc
     .from("diagnoses")
     .insert({
-      farm_id: node.farm_id,
-      node_id: node.node_id,
+      farm_id: farmId,
+      node_id: nodeDisplayId,
       status: diagnosis.status,
       explanation: `📷 ${diagnosis.explanation}`,
       confidence: diagnosis.confidence,
