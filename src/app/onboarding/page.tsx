@@ -156,7 +156,7 @@ export default function OnboardingPage() {
       body: (
         <div className="space-y-4">
           <p className="text-sm text-muted">
-            Flash your ESP32 with the Fallow firmware and point it at this URL:
+            Flash your ESP32 with the Soilify Labs firmware and point it at this URL:
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all">
@@ -214,7 +214,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center gap-2 mb-8">
           <Sprout className="text-green" size={24} />
-          <span className="text-lg font-bold tracking-tight">Fallow</span>
+          <span className="text-lg font-bold tracking-tight">Soilify Labs</span>
         </div>
 
         <div className="flex gap-1 mb-6">

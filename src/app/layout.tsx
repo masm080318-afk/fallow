@@ -8,14 +8,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Fallow — Soil Monitoring for Small Farms",
+  title: "Soilify Labs — Smart Soil Monitoring",
   description:
-    "Real-time soil moisture and temperature monitoring with AI-powered irrigation guidance.",
-  applicationName: "Fallow",
+    "Where agriculture meets innovation. Real-time soil monitoring, AI-powered irrigation guidance, and SMS alerts for modern farms.",
+  applicationName: "Soilify Labs",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    title: "Fallow",
+    title: "Soilify Labs",
     statusBarStyle: "black-translucent",
   },
   icons: {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#22c55e",
+  themeColor: "#5c9e2a",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

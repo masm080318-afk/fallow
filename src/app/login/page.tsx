@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { Sprout } from "lucide-react";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -21,68 +21,46 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Animated background orbs */}
+      {/* Subtle background glow */}
       <div
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)",
-          animation: "float 6s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 70%)",
-          animation: "float 8s ease-in-out infinite reverse",
-        }}
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(92,158,42,0.06) 0%, transparent 70%)" }}
       />
 
       <div className="w-full max-w-sm relative animate-fade-up">
-        {/* Logo */}
+        {/* Logo + brand */}
         <div className="flex flex-col items-center mb-10">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{
-              background: "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))",
-              border: "1px solid rgba(34,197,94,0.3)",
-              boxShadow: "0 0 30px rgba(34,197,94,0.2)",
-            }}
-          >
-            <Sprout
-              size={32}
-              className="text-green animate-float"
-              style={{ filter: "drop-shadow(0 0 8px rgba(34,197,94,0.6))" }}
+          <div className="animate-float mb-5">
+            <Image
+              src="/logo.png"
+              alt="Soilify Labs"
+              width={80}
+              height={80}
+              className="rounded-2xl"
+              style={{ boxShadow: "0 0 40px rgba(92,158,42,0.2)" }}
             />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-gradient">Fallow</h1>
-          <p className="text-sm text-muted mt-1">Smart soil monitoring for real farms</p>
+          <h1 className="text-3xl font-black tracking-tight text-gradient">Soilify Labs</h1>
+          <p className="text-sm text-[var(--muted)] mt-1.5">Where Agriculture Meets Innovation</p>
         </div>
 
         {/* Card */}
         <div
           className="card p-7"
-          style={{
-            background: "linear-gradient(145deg, #131313, #0e0e0e)",
-            boxShadow: "0 0 40px rgba(0,0,0,0.6), 0 0 1px rgba(255,255,255,0.05) inset",
-          }}
+          style={{ background: "linear-gradient(145deg, #131913, #0e130e)" }}
         >
-          <h2 className="text-xl font-bold text-center mb-1">Welcome back</h2>
-          <p className="text-sm text-muted text-center mb-7">Sign in to see your farm</p>
+          <h2 className="text-xl font-bold text-center mb-1">Welcome</h2>
+          <p className="text-sm text-[var(--muted)] text-center mb-7">Sign in to monitor your farm</p>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="btn-secondary w-full relative overflow-hidden group"
+            className="btn-secondary w-full"
             style={{ minHeight: 52, borderRadius: "0.75rem" }}
           >
-            {/* Hover shimmer */}
-            <span
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent)" }}
-            />
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-muted border-t-green rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-[var(--muted)] border-t-[var(--green)] rounded-full animate-spin" />
                 Redirecting...
               </span>
             ) : (
@@ -99,30 +77,31 @@ export default function LoginPage() {
           </button>
 
           {error && (
-            <p className="text-red text-sm mt-4 text-center bg-red/10 rounded-lg py-2 px-3">{error}</p>
+            <p className="text-sm mt-4 text-center rounded-lg py-2 px-3" style={{ color: "var(--red)", background: "rgba(217,79,42,0.08)" }}>{error}</p>
           )}
 
           <div className="flex items-center gap-3 mt-6 mb-4">
-            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
-            <span className="text-xs text-muted">what you get</span>
-            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+            <div className="h-px flex-1 bg-[var(--border)]" />
+            <span className="text-xs text-[var(--muted)]">included</span>
+            <div className="h-px flex-1 bg-[var(--border)]" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {[
-              "📡  Live soil moisture from your sensor",
-              "🤖  AI plant health assistant",
-              "📱  SMS alerts when soil gets dry",
-            ].map((f) => (
-              <div key={f} className="text-xs text-muted flex items-center gap-2 px-1">
-                {f}
+              ["📡", "Live soil moisture readings"],
+              ["🤖", "AI crop analysis with photos"],
+              ["📱", "SMS alerts when soil gets dry"],
+            ].map(([icon, text]) => (
+              <div key={text} className="flex items-center gap-2.5 text-xs text-[var(--muted)]">
+                <span>{icon}</span>
+                <span>{text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-xs text-muted text-center mt-5">
-          By continuing you agree to receive SMS alerts about your farm.
+        <p className="text-xs text-[var(--muted)] text-center mt-5">
+          Free to use · No credit card required
         </p>
       </div>
     </main>
