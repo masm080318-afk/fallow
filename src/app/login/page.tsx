@@ -25,7 +25,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="mb-4 animate-float">
-            <Image src="/logo.png" alt="Soilify Labs" width={72} height={72} />
+            <Image src="/logo-icon.png" alt="Soilify Labs" width={64} height={64} />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-gradient">Soilify Labs</h1>
           <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Where Agriculture Meets Innovation</p>
