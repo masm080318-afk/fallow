@@ -1,13 +1,13 @@
 {
-  "name": "Fallow — Soil Monitoring",
-  "short_name": "Fallow",
+  "name": "Soilify Labs",
+  "short_name": "Soilify",
   "description": "Real-time soil moisture and AI-powered irrigation guidance for small farms.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a0a0a",
-  "theme_color": "#22c55e",
+  "background_color": "#f5f8f4",
+  "theme_color": "#5c9e2a",
   "categories": ["productivity", "utilities", "agriculture"],
   "icons": [
     {

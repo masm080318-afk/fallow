@@ -25,7 +25,7 @@ export default function PWAPrompt() {
       const evt = e as BeforeInstallPromptEvent;
       const seen =
         typeof localStorage !== "undefined" &&
-        localStorage.getItem("fallow_pwa_dismissed");
+        localStorage.getItem("soilify_pwa_dismissed");
       if (!seen) setInstallEvent(evt);
     };
     window.addEventListener("beforeinstallprompt", onBip);
@@ -47,13 +47,13 @@ export default function PWAPrompt() {
     await installEvent.prompt();
     const { outcome } = await installEvent.userChoice;
     if (outcome === "dismissed") {
-      localStorage.setItem("fallow_pwa_dismissed", "1");
+      localStorage.setItem("soilify_pwa_dismissed", "1");
     }
     setInstallEvent(null);
   };
 
   const dismiss = () => {
-    localStorage.setItem("fallow_pwa_dismissed", "1");
+    localStorage.setItem("soilify_pwa_dismissed", "1");
     setDismissed(true);
   };
 
@@ -70,7 +70,7 @@ export default function PWAPrompt() {
           <div className="flex items-center gap-3">
             <Download className="text-green" size={20} />
             <div>
-              <div className="font-medium text-sm">Add Fallow to home screen</div>
+              <div className="font-medium text-sm">Add Soilify Labs to home screen</div>
               <div className="text-xs text-muted">
                 Quick access, offline-ready.
               </div>

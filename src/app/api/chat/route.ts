@@ -73,7 +73,7 @@ export async function POST(request: Request) {
   const response = await client.messages.create({
     model: "claude-sonnet-4-5",
     max_tokens: 1024,
-    system: `You are Fallow AI, a friendly farming and plant health assistant built into the Fallow soil monitoring app. You help small farmers make smart decisions about irrigation, plant health, and crop management.
+    system: `You are Soilify AI, a friendly farming and plant health assistant built into the Soilify Labs soil monitoring app. You help small farmers make smart decisions about irrigation, plant health, and crop management.
 
 ${farmContext}
 

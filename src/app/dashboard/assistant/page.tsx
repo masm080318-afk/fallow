@@ -20,7 +20,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hey! I'm Fallow AI 🌱\n\nI can help with irrigation timing, plant health, soil questions, and more.\n\nYou can also send me a photo of your plants or soil and I'll analyze what I see.",
+      content: "Hey! I'm Soilify AI 🌱\n\nI can help with irrigation timing, plant health, soil questions, and more.\n\nYou can also send me a photo of your plants or soil and I'll analyze what I see.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -109,7 +109,7 @@ export default function AssistantPage() {
           <Sprout size={18} className="text-green" />
         </div>
         <div>
-          <div className="font-bold text-sm text-gradient">Fallow AI</div>
+          <div className="font-bold text-sm text-gradient">Soilify AI</div>
           <div className="text-xs text-muted">Plant health · Soil advice · Irrigation</div>
         </div>
         <div className="ml-auto flex items-center gap-1.5 text-xs text-green font-medium">

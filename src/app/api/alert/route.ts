@@ -85,8 +85,8 @@ export async function POST(request: Request) {
 
   const moisture = body.moisture ?? 0;
   const message = isTest
-    ? `Fallow test alert: SMS notifications are working for ${farm.name}.`
-    : `Fallow alert: ${farm.name} soil moisture is ${moisture}% (below your ${farm.alert_threshold}% threshold). Consider watering soon.`;
+    ? `Soilify Labs test alert: SMS notifications are working for ${farm.name}.`
+    : `Soilify Labs alert: ${farm.name} soil moisture is ${moisture}% (below your ${farm.alert_threshold}% threshold). Consider watering soon.`;
 
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
