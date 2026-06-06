@@ -36,8 +36,7 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
 
   useEffect(() => {
     if (!reading) { setOnline(false); return; }
-    const age = now - new Date(reading.created_at).getTime();
-    setOnline(age < 35 * 60 * 1000);
+    setOnline(now - new Date(reading.created_at).getTime() < 35 * 60 * 1000);
   }, [reading, now]);
 
   const moisture = reading?.moisture_percent ?? 0;
@@ -45,14 +44,8 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   const glowClass = moisture < 30 ? "card-glow-red" : moisture < 50 ? "card-glow-yellow" : "card-glow-green";
 
   return (
-    <div
-      className={`card ${glowClass} animate-fade-up`}
-      style={{
-        background: "linear-gradient(145deg, #141414, #0f0f0f)",
-        transition: "box-shadow 0.6s ease",
-      }}
-    >
-      {/* Header row */}
+    <div className={`card ${glowClass} animate-fade-up`}>
+      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-xs uppercase tracking-widest text-muted font-semibold">
@@ -62,42 +55,32 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
             {reading ? `Updated ${timeAgo(reading.created_at, now)}` : "Waiting for sensor…"}
           </p>
         </div>
-        <span className={`flex items-center gap-1.5 text-xs font-medium ${online ? "text-green" : "text-muted"}`}>
-          {online ? (
-            <><span className="dot-online" /> Live</>
-          ) : (
-            <><WifiOff size={12} /> Offline</>
-          )}
+        <span className={`flex items-center gap-1.5 text-xs font-semibold ${online ? "text-green" : "text-muted"}`}>
+          {online ? <><span className="dot-online" /> Live</> : <><WifiOff size={12} /> Offline</>}
         </span>
       </div>
 
       {/* Gauge */}
-      <div className="flex justify-center py-3">
+      <div className="flex justify-center py-2">
         <MoistureGauge value={moisture} />
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-3 mt-4">
-        <div
-          className="rounded-xl p-3.5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <div className="flex items-center gap-1.5 text-muted text-xs mb-2 font-medium">
-            <Thermometer size={13} /> Temperature
+        <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
+          <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
+            <Thermometer size={12} /> Temperature
           </div>
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold text-foreground">
             {reading ? temp.toFixed(1) : "—"}
             <span className="text-sm text-muted font-normal ml-1">°F</span>
           </div>
         </div>
-        <div
-          className="rounded-xl p-3.5"
-          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <div className="flex items-center gap-1.5 text-muted text-xs mb-2 font-medium">
-            <Radio size={13} /> Sensor
+        <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
+          <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
+            <Radio size={12} /> Sensor
           </div>
-          <div className="text-2xl font-bold truncate">
+          <div className="text-base font-bold text-foreground truncate pt-1">
             {node?.node_id ?? "—"}
           </div>
         </div>
@@ -112,6 +95,5 @@ function timeAgo(iso: string, now = Date.now()) {
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m ago`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+  return h < 24 ? `${h}h ago` : `${Math.floor(h / 24)}d ago`;
 }

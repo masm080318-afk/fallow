@@ -9,8 +9,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -20,43 +19,28 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Subtle background glow */}
-      <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(92,158,42,0.06) 0%, transparent 70%)" }}
-      />
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[var(--background)]">
+      <div className="w-full max-w-sm animate-fade-up">
 
-      <div className="w-full max-w-sm relative animate-fade-up">
-        {/* Logo + brand */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="animate-float mb-5">
-            <Image
-              src="/logo.png"
-              alt="Soilify Labs"
-              width={80}
-              height={80}
-              className="rounded-2xl"
-              style={{ boxShadow: "0 0 40px rgba(92,158,42,0.2)" }}
-            />
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="mb-4 animate-float">
+            <Image src="/logo.png" alt="Soilify Labs" width={72} height={72} />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-gradient">Soilify Labs</h1>
-          <p className="text-sm text-[var(--muted)] mt-1.5">Where Agriculture Meets Innovation</p>
+          <h1 className="text-2xl font-black tracking-tight text-gradient">Soilify Labs</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Where Agriculture Meets Innovation</p>
         </div>
 
         {/* Card */}
-        <div
-          className="card p-7"
-          style={{ background: "linear-gradient(145deg, #131913, #0e130e)" }}
-        >
-          <h2 className="text-xl font-bold text-center mb-1">Welcome</h2>
-          <p className="text-sm text-[var(--muted)] text-center mb-7">Sign in to monitor your farm</p>
+        <div className="card p-7">
+          <h2 className="text-lg font-bold text-center mb-1">Sign in to your farm</h2>
+          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>Monitor your soil from anywhere</p>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
             className="btn-secondary w-full"
-            style={{ minHeight: 52, borderRadius: "0.75rem" }}
+            style={{ minHeight: 50, borderRadius: "0.75rem" }}
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -77,30 +61,30 @@ export default function LoginPage() {
           </button>
 
           {error && (
-            <p className="text-sm mt-4 text-center rounded-lg py-2 px-3" style={{ color: "var(--red)", background: "rgba(217,79,42,0.08)" }}>{error}</p>
+            <p className="text-sm mt-4 text-center rounded-lg py-2 px-3"
+              style={{ color: "var(--red)", background: "rgba(192,57,43,0.06)" }}>{error}</p>
           )}
 
           <div className="flex items-center gap-3 mt-6 mb-4">
             <div className="h-px flex-1 bg-[var(--border)]" />
-            <span className="text-xs text-[var(--muted)]">included</span>
+            <span className="text-xs" style={{ color: "var(--muted)" }}>what&apos;s included</span>
             <div className="h-px flex-1 bg-[var(--border)]" />
           </div>
 
           <div className="space-y-2.5">
             {[
-              ["📡", "Live soil moisture readings"],
+              ["📡", "Live soil moisture from your sensor"],
               ["🤖", "AI crop analysis with photos"],
               ["📱", "SMS alerts when soil gets dry"],
             ].map(([icon, text]) => (
-              <div key={text} className="flex items-center gap-2.5 text-xs text-[var(--muted)]">
-                <span>{icon}</span>
-                <span>{text}</span>
+              <div key={text as string} className="flex items-center gap-2.5 text-xs" style={{ color: "var(--muted)" }}>
+                <span>{icon}</span><span>{text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-xs text-[var(--muted)] text-center mt-5">
+        <p className="text-xs text-center mt-4" style={{ color: "var(--muted)" }}>
           Free to use · No credit card required
         </p>
       </div>
