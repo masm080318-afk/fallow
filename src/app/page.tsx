@@ -32,7 +32,7 @@ export default function Home() {
       {/* Hero */}
       <section className="flex flex-col items-center justify-center text-center px-6 py-28 bg-white">
         <div className="mb-8 animate-float">
-          <Image src="/logo.png" alt="Soilify Labs" width={200} height={200} className="mx-auto" />
+          <Image src="/logo.png" alt="Soilify Labs" width={380} height={380} className="mx-auto" />
         </div>
         <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "var(--green)" }}>
           Built for small farms
