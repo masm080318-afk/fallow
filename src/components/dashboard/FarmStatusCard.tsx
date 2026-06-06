@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import MoistureGauge from "./MoistureGauge";
 import { createClient } from "@/lib/supabase/client";
-import { Thermometer, Radio, WifiOff, MapPin } from "lucide-react";
+import { Thermometer, Radio, WifiOff, MapPin, Zap } from "lucide-react";
 import type { Reading, SensorNode } from "@/types";
 
 interface Props {
@@ -18,6 +18,8 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   const [now, setNow] = useState(Date.now());
   const [airTemp, setAirTemp] = useState<number | null>(null);
   const [locationName, setLocationName] = useState<string | null>(null);
+  const [requesting, setRequesting] = useState(false);
+  const [requestMsg, setRequestMsg] = useState<string | null>(null);
 
   // Tick every second for live timer
   useEffect(() => {
@@ -71,6 +73,23 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   const moisture = reading?.moisture_percent ?? 0;
   const glowClass = moisture < 30 ? "card-glow-red" : moisture < 50 ? "card-glow-yellow" : "card-glow-green";
 
+  const requestInstantReading = async () => {
+    setRequesting(true);
+    setRequestMsg(null);
+    try {
+      const res = await fetch("/api/instant-reading", { method: "POST" });
+      const json = await res.json();
+      if (res.ok) {
+        setRequestMsg("✓ Sensor will read when it wakes (within 15 min)");
+      } else {
+        setRequestMsg("Error: " + (json.error ?? "Failed"));
+      }
+    } catch (e) {
+      setRequestMsg("Network error");
+    }
+    setRequesting(false);
+  };
+
   return (
     <div className={`card ${glowClass} animate-fade-up`}>
       {/* Header */}
@@ -92,6 +111,21 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
       <div className="flex justify-center py-2">
         <MoistureGauge value={moisture} />
       </div>
+
+      {/* Instant reading button */}
+      <button
+        onClick={requestInstantReading}
+        disabled={requesting}
+        className="w-full btn-secondary text-sm mb-4"
+      >
+        <Zap size={14} />
+        {requesting ? "Requesting..." : "Request instant reading"}
+      </button>
+      {requestMsg && (
+        <p className="text-xs text-center mb-3" style={{ color: requestMsg.includes("Error") ? "var(--red)" : "var(--green)" }}>
+          {requestMsg}
+        </p>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 mt-4">
