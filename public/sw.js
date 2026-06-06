@@ -1,5 +1,5 @@
-// Fallow service worker — minimal offline shell + last-known dashboard cache.
-const CACHE_NAME = "fallow-v1";
+// Soilify Labs service worker — minimal offline shell + last-known dashboard cache.
+const CACHE_NAME = "soilify-v2";
 const APP_SHELL = ["/", "/dashboard", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
