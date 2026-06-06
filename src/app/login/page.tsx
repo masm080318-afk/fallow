@@ -19,22 +19,26 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[var(--background)]">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--background)" }}>
       <div className="w-full max-w-sm animate-fade-up">
 
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="mb-4 animate-float">
-            <Image src="/logo-icon.png" alt="Soilify Labs" width={64} height={64} />
-          </div>
-          <h1 className="text-2xl font-black tracking-tight text-gradient">Soilify Labs</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>Where Agriculture Meets Innovation</p>
+        {/* Full logo — big, transparent, no box */}
+        <div className="flex justify-center mb-8 animate-float">
+          <Image
+            src="/logo.png"
+            alt="Soilify Labs"
+            width={260}
+            height={260}
+            priority
+          />
         </div>
 
         {/* Card */}
         <div className="card p-7">
           <h2 className="text-lg font-bold text-center mb-1">Sign in to your farm</h2>
-          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>Monitor your soil from anywhere</p>
+          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>
+            Monitor your soil from anywhere
+          </p>
 
           <button
             onClick={handleGoogleSignIn}
@@ -66,9 +70,9 @@ export default function LoginPage() {
           )}
 
           <div className="flex items-center gap-3 mt-6 mb-4">
-            <div className="h-px flex-1 bg-[var(--border)]" />
+            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
             <span className="text-xs" style={{ color: "var(--muted)" }}>what&apos;s included</span>
-            <div className="h-px flex-1 bg-[var(--border)]" />
+            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
           </div>
 
           <div className="space-y-2.5">

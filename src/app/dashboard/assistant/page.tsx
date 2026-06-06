@@ -149,10 +149,10 @@ export default function AssistantPage() {
                       boxShadow: "0 4px 16px rgba(34,197,94,0.2)",
                     }
                   : {
-                      background: "linear-gradient(145deg, #161616, #121212)",
-                      border: "1px solid rgba(255,255,255,0.07)",
+                      background: "rgba(92,158,42,0.08)",
+                      border: "1px solid rgba(92,158,42,0.15)",
                       borderBottomLeftRadius: 4,
-                      boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+                      boxShadow: "0 2px 8px rgba(92,158,42,0.06)",
                     }
               }
             >
@@ -161,7 +161,7 @@ export default function AssistantPage() {
                   src={m.image}
                   alt="Uploaded"
                   className="rounded-xl mb-2 max-h-52 w-auto"
-                  style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                  style={{ border: "1px solid rgba(92,158,42,0.2)" }}
                 />
               )}
               <p className="whitespace-pre-wrap">{m.content}</p>
@@ -184,12 +184,12 @@ export default function AssistantPage() {
             <div
               className="px-4 py-3 rounded-2xl"
               style={{
-                background: "linear-gradient(145deg, #161616, #121212)",
-                border: "1px solid rgba(255,255,255,0.07)",
+                background: "rgba(92,158,42,0.08)",
+                border: "1px solid rgba(92,158,42,0.15)",
                 borderBottomLeftRadius: 4,
               }}
             >
-              <Loader2 size={15} className="animate-spin text-muted" />
+              <Loader2 size={15} className="animate-spin text-green" />
             </div>
           </div>
         )}
@@ -251,9 +251,9 @@ export default function AssistantPage() {
         <div
           className="flex items-end gap-2 rounded-2xl px-3 py-2.5"
           style={{
-            background: "linear-gradient(145deg, #141414, #111)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "0 -4px 24px rgba(0,0,0,0.3)",
+            background: "rgba(92,158,42,0.05)",
+            border: "1px solid rgba(92,158,42,0.15)",
+            boxShadow: "0 2px 8px rgba(92,158,42,0.04)",
           }}
         >
           <button

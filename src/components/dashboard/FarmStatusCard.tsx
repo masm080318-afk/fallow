@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import MoistureGauge from "./MoistureGauge";
 import { createClient } from "@/lib/supabase/client";
-import { Thermometer, Radio, WifiOff } from "lucide-react";
+import { Thermometer, Radio, WifiOff, MapPin } from "lucide-react";
 import type { Reading, SensorNode } from "@/types";
 
 interface Props {
@@ -16,12 +16,16 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
   const [reading, setReading] = useState<Reading | null>(initialReading);
   const [online, setOnline] = useState(true);
   const [now, setNow] = useState(Date.now());
+  const [airTemp, setAirTemp] = useState<number | null>(null);
+  const [locationName, setLocationName] = useState<string | null>(null);
 
+  // Tick every second for live timer
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
 
+  // Supabase realtime
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -34,13 +38,37 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
     return () => { supabase.removeChannel(channel); };
   }, [farmId]);
 
+  // Online check
   useEffect(() => {
     if (!reading) { setOnline(false); return; }
     setOnline(now - new Date(reading.created_at).getTime() < 35 * 60 * 1000);
   }, [reading, now]);
 
+  // Live outdoor temperature from Open-Meteo (no API key needed)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        const { latitude, longitude } = pos.coords;
+        const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`
+        );
+        const data = await res.json();
+        if (data.current?.temperature_2m != null) {
+          setAirTemp(Math.round(data.current.temperature_2m * 10) / 10);
+        }
+        // Reverse geocode city name (free)
+        const geo = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&format=json`
+        );
+        const geoData = await geo.json();
+        const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || geoData.address?.county;
+        if (city) setLocationName(city);
+      } catch { /* silent fail */ }
+    }, () => { /* permission denied */ }, { timeout: 8000 });
+  }, []);
+
   const moisture = reading?.moisture_percent ?? 0;
-  const temp = reading?.temperature_f ?? 0;
   const glowClass = moisture < 30 ? "card-glow-red" : moisture < 50 ? "card-glow-yellow" : "card-glow-green";
 
   return (
@@ -69,18 +97,23 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
       <div className="grid grid-cols-2 gap-3 mt-4">
         <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
           <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
-            <Thermometer size={12} /> Temperature
+            <Thermometer size={12} /> Outdoor temp
           </div>
-          <div className="text-2xl font-bold text-foreground">
-            {reading ? temp.toFixed(1) : "—"}
+          <div className="text-2xl font-bold">
+            {airTemp != null ? airTemp.toFixed(1) : "—"}
             <span className="text-sm text-muted font-normal ml-1">°F</span>
           </div>
+          {locationName && (
+            <div className="flex items-center gap-1 mt-1 text-xs text-muted">
+              <MapPin size={10} /> {locationName}
+            </div>
+          )}
         </div>
         <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
           <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
             <Radio size={12} /> Sensor
           </div>
-          <div className="text-base font-bold text-foreground truncate pt-1">
+          <div className="text-base font-bold pt-1 truncate">
             {node?.node_id ?? "—"}
           </div>
         </div>

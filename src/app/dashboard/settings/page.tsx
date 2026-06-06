@@ -158,7 +158,7 @@ export default function SettingsPage() {
         <h2 className="font-semibold">Farm ID</h2>
         <p className="text-xs text-muted">Add this to your Arduino sketch so the sensor knows which farm it belongs to. Required when two accounts use the same Node ID.</p>
         <div className="flex items-center gap-2">
-          <code className="flex-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all text-muted">
+          <code className="flex-1 bg-[#f5f8f4] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all text-muted">
             {farm.id}
           </code>
           <button
@@ -180,7 +180,7 @@ export default function SettingsPage() {
           {nodes.map((n) => (
             <li
               key={n.id}
-              className="bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 space-y-1.5"
+              className="bg-[#f5f8f4] border border-[var(--border)] rounded-lg px-3 py-2 space-y-1.5"
             >
               <div className="flex items-center justify-between">
                 <div>

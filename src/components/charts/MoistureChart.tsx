@@ -32,15 +32,15 @@ export default function MoistureChart({
       <div className="h-64 -mx-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 12, left: -10, bottom: 0 }}>
-            <CartesianGrid stroke="#262626" strokeDasharray="3 3" />
+            <CartesianGrid stroke="#dfe8dc" strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
-              stroke="#a3a3a3"
+              stroke="#9aaa9a"
               fontSize={11}
               tickLine={false}
             />
             <YAxis
-              stroke="#a3a3a3"
+              stroke="#9aaa9a"
               fontSize={11}
               domain={[0, 100]}
               tickLine={false}
@@ -48,12 +48,13 @@ export default function MoistureChart({
             />
             <Tooltip
               contentStyle={{
-                background: "#141414",
-                border: "1px solid #262626",
+                background: "#ffffff",
+                border: "1px solid #dfe8dc",
                 borderRadius: 8,
                 fontSize: 12,
+                color: "#1c2c1a",
               }}
-              labelStyle={{ color: "#a3a3a3" }}
+              labelStyle={{ color: "#1c2c1a" }}
             />
             <ReferenceLine
               y={threshold}

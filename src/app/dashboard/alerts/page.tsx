@@ -91,7 +91,7 @@ export default function AlertsPage() {
             onClick={toggleEnabled}
             disabled={!farm}
             className={`relative w-12 h-7 rounded-full transition-colors !min-h-0 ${
-              farm?.alerts_enabled ? "bg-green" : "bg-[#262626]"
+              farm?.alerts_enabled ? "bg-green" : "bg-[#d0d8d0]"
             }`}
             aria-label="Toggle alerts"
           >

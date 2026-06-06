@@ -159,7 +159,7 @@ export default function OnboardingPage() {
             Flash your ESP32 with the Soilify Labs firmware and point it at this URL:
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 bg-[#0f0f0f] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all">
+            <code className="flex-1 bg-[#f5f8f4] border border-[var(--border)] rounded-lg px-3 py-2 text-xs break-all">
               {ingestUrl}
             </code>
             <button
