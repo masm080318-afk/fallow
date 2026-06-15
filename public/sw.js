@@ -1,23 +1,18 @@
-// Soilify Labs service worker — minimal offline shell + last-known dashboard cache.
-const CACHE_NAME = "soilify-v2";
-const APP_SHELL = ["/", "/dashboard", "/manifest.json"];
+// Soilify Labs service worker
+const CACHE_NAME = "soilify-v3";
+const STATIC_EXTENSIONS = [".js", ".css", ".woff2", ".woff", ".ttf", ".png", ".jpg", ".webp", ".svg", ".ico"];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).catch(() => {})
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
+  // Clear ALL old caches on activate
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-      )
-    )
+      Promise.all(keys.map((k) => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -25,29 +20,38 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
-  // Never cache API/auth/realtime.
+
+  // Never cache: API, auth, Supabase, or cross-origin requests
   if (
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/auth/") ||
-    url.pathname.startsWith("/_next/data/") ||
-    url.hostname.includes("supabase")
+    url.hostname.includes("supabase") ||
+    url.hostname !== self.location.hostname
   ) {
-    return;
+    return; // pass through to network
   }
 
-  // Stale-while-revalidate for dashboard shell and static assets.
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      const networkFetch = fetch(req)
-        .then((res) => {
-          if (res && res.ok && res.type === "basic") {
+  const isStaticAsset = STATIC_EXTENSIONS.some((ext) => url.pathname.endsWith(ext))
+    || url.pathname.startsWith("/_next/static/");
+
+  if (isStaticAsset) {
+    // Cache-first for static assets (JS, CSS, fonts, images)
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res && res.ok) {
             const clone = res.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
           }
           return res;
-        })
-        .catch(() => cached);
-      return cached || networkFetch;
-    })
-  );
+        });
+      })
+    );
+  } else {
+    // Network-first for HTML pages — always get fresh content
+    event.respondWith(
+      fetch(req).catch(() => caches.match(req))
+    );
+  }
 });
