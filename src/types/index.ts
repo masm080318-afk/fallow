@@ -7,6 +7,12 @@ export interface Farm {
   alert_frequency_hours: number;
   alerts_enabled: boolean;
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  elevation: number | null;
+  crop_type: string | null;
+  pending_capture: boolean;
+  instant_reading_requested: boolean;
 }
 
 export interface SensorNode {
