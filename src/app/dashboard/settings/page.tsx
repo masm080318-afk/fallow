@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Farm, SensorNode } from "@/types";
-import { Save, Plus, Trash2, Copy, Check } from "lucide-react";
+import { Save, Plus, Trash2, Copy, Check, MapPin } from "lucide-react";
+import { CROP_TYPES } from "@/lib/et/crop-coefficients";
 
 export default function SettingsPage() {
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -53,6 +54,10 @@ export default function SettingsPage() {
         phone: farm.phone,
         alert_threshold: farm.alert_threshold,
         alert_frequency_hours: farm.alert_frequency_hours,
+        latitude: farm.latitude ?? null,
+        longitude: farm.longitude ?? null,
+        elevation: farm.elevation ?? null,
+        crop_type: farm.crop_type ?? "garden",
       })
       .eq("id", farm.id);
     setSaving(false);
@@ -144,6 +149,70 @@ export default function SettingsPage() {
             className="!min-h-0 !p-0 !bg-transparent !border-0"
           />
         </div>
+        {/* ET / Location settings */}
+        <div className="pt-2 border-t border-[var(--border)]">
+          <p className="text-sm font-semibold mb-3">ET Irrigation Settings</p>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <label className="text-sm text-muted">Crop type</label>
+              <select
+                value={farm.crop_type ?? "garden"}
+                onChange={(e) => setFarm({ ...farm, crop_type: e.target.value })}
+              >
+                {CROP_TYPES.map((c) => (
+                  <option key={c.id} value={c.id}>{c.label} (Kc = {c.kc})</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm text-muted">Farm location</label>
+                <button
+                  type="button"
+                  className="btn-secondary !min-h-0 !py-1 !px-2 text-xs"
+                  onClick={() => {
+                    if (!navigator.geolocation) return;
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                      setFarm({
+                        ...farm,
+                        latitude: Math.round(pos.coords.latitude * 10000) / 10000,
+                        longitude: Math.round(pos.coords.longitude * 10000) / 10000,
+                      });
+                    });
+                  }}
+                >
+                  <MapPin size={11} /> Use my location
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  step="0.0001"
+                  placeholder="Latitude (e.g. 37.7749)"
+                  value={farm.latitude ?? ""}
+                  onChange={(e) => setFarm({ ...farm, latitude: e.target.value ? Number(e.target.value) : null })}
+                />
+                <input
+                  type="number"
+                  step="0.0001"
+                  placeholder="Longitude (e.g. -122.4194)"
+                  value={farm.longitude ?? ""}
+                  onChange={(e) => setFarm({ ...farm, longitude: e.target.value ? Number(e.target.value) : null })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm text-muted">Elevation (meters) — optional, improves accuracy</label>
+              <input
+                type="number"
+                placeholder="e.g. 150"
+                value={farm.elevation ?? ""}
+                onChange={(e) => setFarm({ ...farm, elevation: e.target.value ? Number(e.target.value) : null })}
+              />
+            </div>
+          </div>
+        </div>
+
         <button onClick={save} disabled={saving} className="btn-primary w-full">
           <Save size={16} />
           {saving ? "Saving..." : "Save"}

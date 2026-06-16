@@ -3,6 +3,7 @@ import FarmStatusCard from "@/components/dashboard/FarmStatusCard";
 import AIDiagnosisCard from "@/components/dashboard/AIDiagnosisCard";
 import IrrigationPrediction from "@/components/dashboard/IrrigationPrediction";
 import PWAPrompt from "@/components/PWAPrompt";
+import ETCard from "@/components/dashboard/ETCard";
 import type { Reading, SensorNode, Diagnosis } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +52,7 @@ export default async function DashboardPage() {
         farmId={farm!.id}
       />
       <AIDiagnosisCard diagnosis={latestDiagnosis as Diagnosis | null} farmId={farm!.id} />
+      <ETCard />
       <IrrigationPrediction diagnosis={latestDiagnosis as Diagnosis | null} />
       <PWAPrompt />
     </main>
