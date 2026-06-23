@@ -27,9 +27,11 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
     return () => clearInterval(t);
   }, []);
 
-  // Supabase realtime
+  // Supabase realtime + polling fallback for cellular
   useEffect(() => {
     const supabase = createClient();
+
+    // Realtime subscription (instant when on WiFi/good connection)
     const channel = supabase
       .channel(`readings-${farmId}`)
       .on("postgres_changes", {
@@ -37,7 +39,31 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
         filter: `farm_id=eq.${farmId}`,
       }, (payload) => setReading(payload.new as Reading))
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    // Polling fallback every 30s — catches updates when WebSocket drops on cellular
+    const poll = async () => {
+      const { data } = await supabase
+        .from("readings")
+        .select("*")
+        .eq("farm_id", farmId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) setReading((prev) => {
+        // Only update if newer than current reading
+        if (!prev || new Date(data.created_at) > new Date(prev.created_at)) {
+          return data as Reading;
+        }
+        return prev;
+      });
+    };
+
+    const interval = setInterval(poll, 30000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
   }, [farmId]);
 
   // Online check
