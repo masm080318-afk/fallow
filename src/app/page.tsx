@@ -1,113 +1,101 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Droplets, Bell, Camera, LineChart, ChevronDown, Smartphone, Zap, Shield } from "lucide-react";
+import { Droplets, Bell, Camera, LineChart, ChevronDown, Zap, Smartphone, Shield } from "lucide-react";
+import PublicNav from "@/components/layout/PublicNav";
+import PublicFooter from "@/components/layout/PublicFooter";
 
 export default function Home() {
   return (
     <main className="flex-1 flex flex-col min-h-screen">
-      {/* Nav */}
-      <header className="px-6 py-4 flex items-center justify-between border-b border-white/10 bg-black/20 backdrop-blur-md sticky top-0 z-20">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-icon.png" alt="Soilify Labs" width={36} height={36} />
-          <span className="text-base font-bold tracking-tight text-white">Soilify Labs</span>
-        </Link>
-        <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-white/70">
-          <Link href="/about" className="hover:text-white transition-colors">About</Link>
-          <Link href="/mission" className="hover:text-white transition-colors">Our Mission</Link>
-          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <Link href="/contact" className="btn-hero-primary text-sm !min-h-0 py-2 px-4 hidden sm:flex">Pre-order</Link>
-          <Link href="/login" className="btn-hero-secondary text-sm !min-h-0 py-2 px-4">Sign in</Link>
-        </div>
-      </header>
 
-      {/* Mobile nav */}
-      <div className="sm:hidden flex items-center justify-center gap-6 py-3 border-b border-white/10 bg-black/30 text-xs font-medium text-white/70">
-        <Link href="/about" className="hover:text-white transition-colors">About</Link>
-        <Link href="/mission" className="hover:text-white transition-colors">Mission</Link>
-        <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-      </div>
-
-      {/* Hero — cinematic full-bleed */}
-      <section className="relative min-h-[88vh] flex flex-col items-center justify-center text-center px-6 py-24 overflow-hidden -mt-[73px] pt-[73px]">
+      {/* ── Hero ── */}
+      <section className="relative min-h-screen flex flex-col overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1600&q=85"
+            src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1800&q=90"
             alt="Farm rows at golden hour"
             fill
             sizes="100vw"
             className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/30 to-black/75" />
         </div>
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <div className="mb-6 inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#7dd44f] animate-pulse" />
-            <span className="text-white/90 text-xs font-semibold tracking-[0.2em] uppercase">Built for small farms</span>
+        <div className="relative z-10 flex flex-col flex-1">
+          <PublicNav />
+
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 pb-24">
+            <div className="mb-6 inline-flex items-center gap-2 glass-card-dark rounded-full px-4 py-1.5">
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--green-bright)" }} />
+              <span className="text-white/85 text-xs font-semibold tracking-[0.2em] uppercase">Built for small farms</span>
+            </div>
+
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight mb-6 text-white leading-[1.04]">
+              Your soil,<br />
+              <span style={{ color: "var(--green-bright)" }}>smarter.</span>
+            </h1>
+
+            <p className="text-lg sm:text-xl text-white/70 mb-10 max-w-lg mx-auto leading-relaxed">
+              The same precision tools large farms pay $10,000+ for —
+              delivered to your door for <strong className="text-white">$20</strong>.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/contact" className="btn-hero-primary text-base px-9 py-4">Pre-order your kit</Link>
+              <Link href="/mission" className="btn-hero-secondary text-base px-9 py-4">Our mission →</Link>
+            </div>
+
+            <p className="text-xs mt-6 text-white/35 tracking-wide">
+              Free software · $20 sensor hardware · Ships to your door
+            </p>
           </div>
 
-          <h1 className="text-5xl sm:text-7xl font-bold tracking-tight mb-6 text-white leading-[1.06]">
-            Your soil,<br />
-            <span style={{ color: "#7dd44f" }}>smarter.</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-white/70 mb-10 max-w-md mx-auto leading-relaxed">
-            The precision tools large farms pay $10,000+ for — in a $20 kit that ships straight to your door.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="btn-hero-primary text-base px-8 py-3.5">Pre-order your kit</Link>
-            <Link href="/mission" className="btn-hero-secondary text-base px-8 py-3.5">Our mission →</Link>
+          <div className="relative z-10 flex justify-center pb-8 animate-bounce">
+            <ChevronDown size={24} className="text-white/30" />
           </div>
-
-          <p className="text-xs mt-6 text-white/40">Free software · $20 sensor hardware · Ships to your door</p>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce">
-          <ChevronDown size={22} className="text-white/30" />
         </div>
       </section>
 
-      {/* Stats bar */}
+      {/* ── Stats strip ── */}
       <section className="bg-white border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 divide-x divide-[var(--border)]">
           {[
-            { value: "$20", label: "One-time hardware cost" },
-            { value: "30s", label: "Sensor reading interval" },
-            { value: "Free", label: "Software, forever" },
-            { value: "< 1 min", label: "Setup time" },
+            { value: "$20",    label: "One-time hardware" },
+            { value: "30s",    label: "Sensor read interval" },
+            { value: "Free",   label: "Software, always" },
+            { value: "5 min",  label: "To first reading" },
           ].map(({ value, label }) => (
-            <div key={label} className="py-7 px-6 text-center">
-              <p className="text-2xl sm:text-3xl font-bold text-gradient">{value}</p>
+            <div key={label} className="py-8 px-6 text-center">
+              <p className="text-3xl font-black text-gradient">{value}</p>
               <p className="text-xs mt-1.5 leading-tight" style={{ color: "var(--muted)" }}>{label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Problem → Solution split */}
-      <section className="px-6 py-24 bg-white">
-        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-12 items-center">
+      {/* ── Problem ── */}
+      <section className="dark-section px-6 py-28">
+        <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-14 items-center">
           <div>
-            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--green)" }}>The problem</p>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-6 leading-tight">
-              Small farms water<br />by guesswork
+            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "var(--green-bright)" }}>The problem</p>
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 leading-tight">
+              Small farms water<br />by guesswork.
             </h2>
-            <p className="leading-relaxed mb-4" style={{ color: "var(--muted)" }}>
-              Large farms use $10,000+ precision irrigation systems. Small farm families check soil by feel,
-              waste water, and sometimes lose entire crops to moisture stress they never saw coming.
+            <p className="text-white/60 leading-relaxed mb-4">
+              Large agricultural operations run FAO-56 Penman-Monteith evapotranspiration models
+              on $10,000+ systems. Small family farms check soil by feel, waste water,
+              and lose crops to stress they never saw coming.
             </p>
-            <p className="leading-relaxed font-semibold" style={{ color: "var(--foreground)" }}>
-              Soilify Labs changes that.
+            <p className="text-white/85 font-semibold leading-relaxed">
+              Soilify Labs delivers the same decision quality for $20.
             </p>
-            <Link href="/mission" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--green)" }}>
+            <Link href="/mission" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--green-bright)" }}>
               Read our mission →
             </Link>
           </div>
-          <div className="relative h-80 sm:h-[420px] rounded-2xl overflow-hidden shadow-2xl">
+
+          <div className="relative h-80 sm:h-[440px] rounded-2xl overflow-hidden">
             <Image
               src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=900&q=85"
               alt="Farmer working the land"
@@ -115,25 +103,25 @@ export default function Home() {
               sizes="(max-width: 640px) 100vw, 50vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            <div className="absolute inset-0 rounded-2xl" style={{ boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.1)" }} />
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="px-6 py-20" style={{ background: "var(--background)" }}>
-        <div className="max-w-4xl mx-auto">
+      {/* ── How it works ── */}
+      <section className="px-6 py-28 bg-white">
+        <div className="max-w-5xl mx-auto">
           <p className="text-center text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--green)" }}>How it works</p>
-          <h2 className="text-center text-3xl font-bold mb-14">Up and running in minutes</h2>
+          <h2 className="text-center text-4xl font-black mb-16 tracking-tight">Up and running in minutes</h2>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { step: "01", icon: Zap, title: "Plug in your sensor", desc: "Stick the ESP32 kit in your soil. It connects to Wi-Fi automatically." },
-              { step: "02", icon: Smartphone, title: "Get instant readings", desc: "Open the app and watch live moisture data stream in every 30 seconds." },
-              { step: "03", icon: Shield, title: "Never miss a stress event", desc: "Set your thresholds. Get a text the moment your crops need water." },
-            ].map(({ step, icon: Icon, title, desc }) => (
-              <div key={step} className="card relative overflow-hidden">
-                <span className="absolute top-4 right-5 text-6xl font-black leading-none" style={{ color: "var(--border)" }}>{step}</span>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(92,158,42,0.1)" }}>
+              { n: "01", icon: Zap,        title: "Plug in your sensor",    desc: "Stake the ESP32 kit into your soil. It connects to your Wi-Fi automatically — no soldering, no config files." },
+              { n: "02", icon: Smartphone, title: "Open the dashboard",     desc: "Live moisture readings stream in every 30 seconds. View from any device. Share access with your whole team." },
+              { n: "03", icon: Shield,     title: "Never miss a stress event", desc: "Set your moisture threshold. The moment soil drops below it, you get a text. React before your crops feel it." },
+            ].map(({ n, icon: Icon, title, desc }) => (
+              <div key={n} className="card relative overflow-hidden">
+                <span className="absolute top-3 right-4 text-7xl font-black leading-none select-none" style={{ color: "var(--border)", opacity: 0.8 }}>{n}</span>
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(92,158,42,0.1)" }}>
                   <Icon size={22} style={{ color: "var(--green)" }} />
                 </div>
                 <h3 className="font-bold text-base mb-2">{title}</h3>
@@ -144,86 +132,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features — bento grid */}
-      <section className="px-6 pb-24 pt-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-center text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--green)" }}>What you get</p>
-          <h2 className="text-center text-3xl font-bold mb-14">Everything your crops need</h2>
+      {/* ── Features bento — glass over photo ── */}
+      <section className="relative py-28 px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1600&q=85"
+            alt="Golden hour wheat field"
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/80" />
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <p className="text-center text-xs font-bold tracking-[0.2em] uppercase mb-3" style={{ color: "var(--green-bright)" }}>What you get</p>
+          <h2 className="text-center text-4xl font-black text-white mb-14">Everything your crops need</h2>
 
           <div className="grid sm:grid-cols-2 gap-5">
-            {/* Large card — moisture */}
-            <div className="card relative overflow-hidden sm:row-span-1 flex flex-col gap-4" style={{ background: "var(--background)" }}>
-              <div className="relative h-44 -mx-5 -mt-5 mb-2 overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=700&q=80"
-                  alt="Corn crops"
-                  fill
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--background)]" />
-              </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(92,158,42,0.12)" }}>
-                  <Droplets size={18} style={{ color: "var(--green)" }} />
+            {[
+              { icon: Droplets,  title: "Live soil moisture",  desc: "Your ESP32 sensor sends readings every 30 seconds. Watch moisture change in real time from anywhere — field, office, or phone." },
+              { icon: Bell,      title: "SMS alerts",          desc: "Get a text the moment soil drops below your threshold. React before your crops feel the stress. No app required." },
+              { icon: Camera,    title: "AI crop analysis",    desc: "Photo of your plants + soil data = precise diagnosis from Claude. Like having an agronomist available 24/7." },
+              { icon: LineChart, title: "24-hour charts",      desc: "See how moisture trends across the day, week, and month. Know exactly when your irrigation schedule is working." },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="glass-card-dark p-6 flex gap-4 items-start">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(125,212,79,0.15)" }}>
+                  <Icon size={20} style={{ color: "var(--green-bright)" }} />
                 </div>
                 <div>
-                  <h3 className="font-bold mb-1">Live soil moisture</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>Your ESP32 sensor sends readings every 30 seconds. Watch your moisture change in real time from anywhere in the world.</p>
+                  <h3 className="font-bold text-white mb-1.5">{title}</h3>
+                  <p className="text-sm leading-relaxed text-white/60">{desc}</p>
                 </div>
               </div>
-            </div>
-
-            {/* Large card — seedlings / AI */}
-            <div className="card relative overflow-hidden flex flex-col gap-4" style={{ background: "var(--background)" }}>
-              <div className="relative h-44 -mx-5 -mt-5 mb-2 overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=700&q=80"
-                  alt="Seedlings"
-                  fill
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--background)]" />
-              </div>
-              <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(92,158,42,0.12)" }}>
-                  <Camera size={18} style={{ color: "var(--green)" }} />
-                </div>
-                <div>
-                  <h3 className="font-bold mb-1">AI crop analysis</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>Take a photo of your plants. Our AI combines the image with your soil data for a precise diagnosis of what your crop needs.</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Small card — SMS */}
-            <div className="card flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(92,158,42,0.12)" }}>
-                <Bell size={18} style={{ color: "var(--green)" }} />
-              </div>
-              <div>
-                <h3 className="font-bold mb-1">SMS alerts</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>Get a text the moment your soil drops below your threshold. React before your crops feel the stress.</p>
-              </div>
-            </div>
-
-            {/* Small card — Charts */}
-            <div className="card flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(92,158,42,0.12)" }}>
-                <LineChart size={18} style={{ color: "var(--green)" }} />
-              </div>
-              <div>
-                <h3 className="font-bold mb-1">24-hour charts</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>See how moisture trends across the day. Know when your irrigation schedule is working — or when it&apos;s not.</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA — dark with photo */}
-      <section className="relative overflow-hidden py-28 px-6 text-center">
+      {/* ── CTA ── */}
+      <section className="relative overflow-hidden py-32 px-6 text-center">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1400&q=80"
@@ -232,38 +180,24 @@ export default function Home() {
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0" style={{ background: "rgba(15,28,12,0.82)" }} />
+          <div className="absolute inset-0" style={{ background: "rgba(10,20,8,0.88)" }} />
         </div>
         <div className="relative z-10 max-w-xl mx-auto">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "#7dd44f" }}>Join the waitlist</p>
-          <h2 className="text-3xl sm:text-5xl font-bold text-white mb-5 leading-tight">
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "var(--green-bright)" }}>Join the waitlist</p>
+          <h2 className="text-4xl sm:text-6xl font-black text-white mb-5 leading-tight">
             Ready to know<br />your soil?
           </h2>
-          <p className="text-white/60 mb-9 text-base leading-relaxed">
-            Join small farm families already on our waitlist. Ships to your door for $20.
+          <p className="text-white/55 mb-10 text-base leading-relaxed max-w-sm mx-auto">
+            Join small farm families already on our waitlist.
+            Hardware ships for $20. Software is free forever.
           </p>
-          <Link href="/contact" className="btn-hero-primary text-base px-10 py-4">
-            Pre-order your kit
+          <Link href="/contact" className="btn-hero-primary text-base px-12 py-4">
+            Pre-order your kit →
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border)] px-6 py-6 bg-white">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Image src="/logo-icon.png" alt="" width={24} height={24} />
-            <span className="text-sm font-semibold text-gradient">Soilify Labs</span>
-          </div>
-          <div className="flex gap-6 text-xs" style={{ color: "var(--muted)" }}>
-            <Link href="/about" className="hover:text-[var(--green)] transition-colors">About</Link>
-            <Link href="/mission" className="hover:text-[var(--green)] transition-colors">Mission</Link>
-            <Link href="/contact" className="hover:text-[var(--green)] transition-colors">Contact</Link>
-            <Link href="/login" className="hover:text-[var(--green)] transition-colors">Sign in</Link>
-          </div>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>© 2025 Soilify Labs</p>
-        </div>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

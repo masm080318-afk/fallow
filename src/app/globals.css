@@ -8,10 +8,12 @@
   --border: #dfe8dc;
   --muted: #7a9278;
   --green: #5c9e2a;
+  --green-bright: #7dd44f;
   --green-dim: #4a8020;
   --yellow: #b8860b;
   --red: #c0392b;
   --earth: #8b5e30;
+  --dark-bg: #0d1a0a;
   --glow-green:  0 2px 20px rgba(92,158,42,0.13);
   --glow-yellow: 0 2px 20px rgba(184,134,11,0.13);
   --glow-red:    0 2px 20px rgba(192,57,43,0.13);
@@ -204,12 +206,63 @@ input::placeholder { color: var(--muted); }
   background-clip: text;
 }
 
-/* ── Glass surface (navbar / header) ── */
+/* ── Glass surfaces ── */
 .glass {
   background: rgba(255,255,255,0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
+
+/* Public nav — frosted dark glass */
+.public-nav {
+  background: rgba(10, 20, 8, 0.35);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Glass card — light bg context */
+.glass-card {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Glass card — dark bg context */
+.glass-card-dark {
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+}
+
+/* Section with dark overlay — used behind text on photo sections */
+.dark-section {
+  background: var(--dark-bg);
+}
+
+/* ── Dark-context form inputs (pre-order page) ── */
+.preorder-input {
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 44px;
+}
+.preorder-input::placeholder { color: rgba(255,255,255,0.28); }
+.preorder-input:focus {
+  outline: none;
+  border-color: rgba(125,212,79,0.5);
+  box-shadow: 0 0 0 3px rgba(125,212,79,0.1);
+}
+.preorder-input option { background: #1a2e14; color: #fff; }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
