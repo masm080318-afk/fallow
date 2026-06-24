@@ -264,6 +264,9 @@ input::placeholder { color: var(--muted); }
 }
 .preorder-input option { background: #1a2e14; color: #fff; }
 
+/* ── Range input accent ── */
+input[type="range"] { accent-color: var(--green); }
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

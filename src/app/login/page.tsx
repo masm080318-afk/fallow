@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Droplets, MessageSquare, Bell } from "lucide-react";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -19,38 +21,74 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: "var(--background)" }}>
-      <div className="w-full max-w-sm animate-fade-up">
+    <main className="min-h-screen relative flex flex-col items-center justify-center px-6 overflow-hidden">
 
-        {/* Full logo — big, transparent, no box */}
-        <div className="flex justify-center mb-8 animate-float">
-          <Image
-            src="/logo.png"
-            alt="Soilify Labs"
-            width={260}
-            height={260}
-            priority
-          />
+      {/* Background photo */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1800&q=85"
+          alt="Farm at golden hour"
+          fill
+          sizes="100vw"
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/85" />
+        {/* subtle vignette */}
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.45) 100%)" }} />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-sm animate-fade-up">
+
+        {/* Logo + wordmark */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="animate-float">
+            <Image
+              src="/logo-icon.png"
+              alt="Soilify Labs"
+              width={72}
+              height={72}
+              className="drop-shadow-[0_0_24px_rgba(125,212,79,0.45)]"
+              priority
+            />
+          </div>
+          <h1 className="mt-4 text-2xl font-black text-white tracking-tight">Soilify Labs</h1>
+          <p className="text-sm mt-1 text-white/45">Precision agriculture for small farms</p>
         </div>
 
-        {/* Card */}
-        <div className="card p-7">
-          <h2 className="text-lg font-bold text-center mb-1">Sign in to your farm</h2>
-          <p className="text-sm text-center mb-6" style={{ color: "var(--muted)" }}>
-            Monitor your soil from anywhere
-          </p>
+        {/* Glass card */}
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: "rgba(255,255,255,0.07)",
+            backdropFilter: "blur(24px) saturate(160%)",
+            WebkitBackdropFilter: "blur(24px) saturate(160%)",
+            border: "1px solid rgba(255,255,255,0.13)",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08)",
+          }}
+        >
+          <h2 className="text-lg font-bold text-white text-center mb-1">Sign in to your farm</h2>
+          <p className="text-sm text-white/45 text-center mb-7">Monitor your soil from anywhere</p>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="btn-secondary w-full"
-            style={{ minHeight: 50, borderRadius: "0.75rem" }}
+            className="w-full flex items-center justify-center gap-3 rounded-xl font-semibold text-sm transition-all duration-200"
+            style={{
+              minHeight: 50,
+              background: "rgba(255,255,255,0.92)",
+              color: "#1c2c1a",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = "#fff")}
+            onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.92)")}
           >
             {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-[var(--muted)] border-t-[var(--green)] rounded-full animate-spin" />
-                Redirecting...
-              </span>
+              <>
+                <span className="w-4 h-4 border-2 border-[#c8d8c4] border-t-[var(--green)] rounded-full animate-spin" />
+                Redirecting…
+              </>
             ) : (
               <>
                 <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -65,32 +103,40 @@ export default function LoginPage() {
           </button>
 
           {error && (
-            <p className="text-sm mt-4 text-center rounded-lg py-2 px-3"
-              style={{ color: "var(--red)", background: "rgba(192,57,43,0.06)" }}>{error}</p>
+            <p className="text-sm mt-4 text-center rounded-xl py-2.5 px-3"
+              style={{ color: "#ff8a8a", background: "rgba(192,57,43,0.15)", border: "1px solid rgba(192,57,43,0.25)" }}>
+              {error}
+            </p>
           )}
 
-          <div className="flex items-center gap-3 mt-6 mb-4">
-            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
-            <span className="text-xs" style={{ color: "var(--muted)" }}>what&apos;s included</span>
-            <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+          {/* Feature pills */}
+          <div className="flex items-center gap-3 mt-7 mb-5">
+            <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.1)" }} />
+            <span className="text-xs text-white/35 tracking-widest uppercase">what&apos;s included</span>
+            <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.1)" }} />
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {[
-              ["📡", "Live soil moisture from your sensor"],
-              ["🤖", "AI crop analysis with photos"],
-              ["📱", "SMS alerts when soil gets dry"],
-            ].map(([icon, text]) => (
-              <div key={text as string} className="flex items-center gap-2.5 text-xs" style={{ color: "var(--muted)" }}>
-                <span>{icon}</span><span>{text}</span>
+              { icon: Droplets,      text: "Live soil moisture from your sensor" },
+              { icon: MessageSquare, text: "AI crop analysis with photos" },
+              { icon: Bell,          text: "SMS alerts when soil gets dry" },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} className="flex items-center gap-3 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(125,212,79,0.12)" }}>
+                  <Icon size={13} style={{ color: "var(--green-bright)" }} />
+                </div>
+                {text}
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-xs text-center mt-4" style={{ color: "var(--muted)" }}>
-          Free to use · No credit card required
-        </p>
+        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-white/30">
+          <span>Free software · No card needed</span>
+          <span>·</span>
+          <Link href="/" className="hover:text-white/55 transition-colors">Back to site</Link>
+        </div>
       </div>
     </main>
   );
