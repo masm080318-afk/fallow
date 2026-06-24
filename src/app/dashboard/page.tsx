@@ -50,6 +50,8 @@ export default async function DashboardPage() {
         initialReading={latestReading as Reading | null}
         node={primaryNode}
         farmId={farm!.id}
+        farmLat={farm!.latitude ?? null}
+        farmLon={farm!.longitude ?? null}
       />
       <AIDiagnosisCard diagnosis={latestDiagnosis as Diagnosis | null} farmId={farm!.id} />
       <ETCard />

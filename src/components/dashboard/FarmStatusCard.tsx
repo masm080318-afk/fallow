@@ -10,9 +10,11 @@ interface Props {
   initialReading: Reading | null;
   node: SensorNode | null;
   farmId: string;
+  farmLat: number | null;
+  farmLon: number | null;
 }
 
-export default function FarmStatusCard({ initialReading, node, farmId }: Props) {
+export default function FarmStatusCard({ initialReading, node, farmId, farmLat, farmLon }: Props) {
   const [reading, setReading] = useState<Reading | null>(initialReading);
   const [online, setOnline] = useState(true);
   const [now, setNow] = useState(Date.now());
@@ -72,29 +74,27 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
     setOnline(now - new Date(reading.created_at).getTime() < 35 * 60 * 1000);
   }, [reading, now]);
 
-  // Live outdoor temperature from Open-Meteo (no API key needed)
+  // Live outdoor temperature from Open-Meteo using saved farm location
   useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(async (pos) => {
+    if (farmLat == null || farmLon == null) return;
+    (async () => {
       try {
-        const { latitude, longitude } = pos.coords;
         const res = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latitude.toFixed(4)}&longitude=${longitude.toFixed(4)}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`
+          `https://api.open-meteo.com/v1/forecast?latitude=${farmLat.toFixed(4)}&longitude=${farmLon.toFixed(4)}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`
         );
         const data = await res.json();
         if (data.current?.temperature_2m != null) {
           setAirTemp(Math.round(data.current.temperature_2m * 10) / 10);
         }
-        // Reverse geocode city name (free)
         const geo = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}&format=json`
+          `https://nominatim.openstreetmap.org/reverse?lat=${farmLat.toFixed(4)}&lon=${farmLon.toFixed(4)}&format=json`
         );
         const geoData = await geo.json();
         const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || geoData.address?.county;
         if (city) setLocationName(city);
       } catch { /* silent fail */ }
-    }, () => { /* permission denied */ }, { timeout: 8000 });
-  }, []);
+    })();
+  }, [farmLat, farmLon]);
 
   const moisture = reading?.moisture_percent ?? 0;
   const glowClass = moisture < 30 ? "card-glow-red" : moisture < 50 ? "card-glow-yellow" : "card-glow-green";
@@ -159,10 +159,20 @@ export default function FarmStatusCard({ initialReading, node, farmId }: Props) 
           <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
             <Thermometer size={12} /> Outdoor temp
           </div>
-          <div className="text-2xl font-bold">
-            {airTemp != null ? airTemp.toFixed(1) : "—"}
-            <span className="text-sm text-muted font-normal ml-1">°F</span>
-          </div>
+          {airTemp != null ? (
+            <div className="text-2xl font-bold">
+              {airTemp.toFixed(1)}
+              <span className="text-sm text-muted font-normal ml-1">°F</span>
+            </div>
+          ) : (
+            <div className="text-xs text-muted mt-1">
+              {farmLat == null ? (
+                <a href="/dashboard/settings" className="underline" style={{ color: "var(--green)" }}>
+                  Set location in Settings
+                </a>
+              ) : "Loading…"}
+            </div>
+          )}
           {locationName && (
             <div className="flex items-center gap-1 mt-1 text-xs text-muted">
               <MapPin size={10} /> {locationName}
