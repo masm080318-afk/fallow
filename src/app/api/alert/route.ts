@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import twilio from "twilio";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -32,15 +31,19 @@ async function checkRainRecently(lat: number, lon: number): Promise<number> {
   }
 }
 
-async function getOutdoorTempF(lat: number, lon: number): Promise<number | null> {
-  try {
-    const res = await fetchWithTimeout(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`
-    );
-    const d = await res.json();
-    return d.current?.temperature_2m ?? null;
-  } catch {
-    return null;
+async function sendSMS(phone: string, message: string): Promise<void> {
+  const key = process.env.TEXTBELT_API_KEY;
+  if (!key) throw new Error("TEXTBELT_API_KEY not set in environment variables.");
+
+  const res = await fetch("https://textbelt.com/text", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ phone, message, key }),
+  });
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(data.error ?? "TextBelt rejected the message.");
   }
 }
 
@@ -78,10 +81,10 @@ export async function POST(request: Request) {
   }
 
   if (!farm.phone) {
-    return NextResponse.json({ error: "No phone number on file" }, { status: 400 });
+    return NextResponse.json({ error: "No phone number on file." }, { status: 400 });
   }
 
-  // Throttle: skip if alert of same type sent within alert_frequency_hours (except test)
+  // Throttle: skip if same alert type sent within alert_frequency_hours (except test)
   if (!isTest) {
     const since = new Date(Date.now() - farm.alert_frequency_hours * 3600 * 1000).toISOString();
     const { data: recent } = await svc
@@ -99,20 +102,14 @@ export async function POST(request: Request) {
   }
 
   const moisture = body.moisture ?? 0;
-
   let message: string;
   if (isTest) {
-    message = `Soilify Labs test alert: SMS notifications are working for ${farm.name}.`;
+    message = `Soilify Labs test: SMS is working for ${farm.name}.`;
   } else if (alertType === "frost") {
-    const temp = body.moisture; // reused field for frost — holds temp value
-    message = `Soilify Labs frost alert: Outdoor temperature at ${farm.name} is ${temp}°F. Protect your crops!`;
+    message = `Soilify Labs frost alert: Temp at ${farm.name} dropped to ${body.moisture}°F. Protect your crops!`;
   } else {
-    message = `Soilify Labs alert: ${farm.name} soil moisture is ${moisture}% (below your ${farm.alert_threshold}% threshold). Consider watering soon.`;
+    message = `Soilify Labs: ${farm.name} soil moisture is ${moisture}% — below your ${farm.alert_threshold}% threshold. Time to water!`;
   }
-
-  const sid   = process.env.TWILIO_ACCOUNT_SID;
-  const token = process.env.TWILIO_AUTH_TOKEN;
-  const from  = process.env.TWILIO_FROM ?? process.env.TWILIO_PHONE_NUMBER;
 
   if (!isTest) {
     await svc.from("alerts_log").insert({
@@ -121,19 +118,12 @@ export async function POST(request: Request) {
     });
   }
 
-  if (!sid || !token || !from) {
-    const missing = [!sid && "TWILIO_ACCOUNT_SID", !token && "TWILIO_AUTH_TOKEN", !from && "TWILIO_FROM"].filter(Boolean);
-    console.error("Twilio env vars missing:", missing);
-    return NextResponse.json({ error: `Twilio env vars not configured: ${missing.join(", ")}` }, { status: 500 });
-  }
-
   try {
-    const client = twilio(sid, token);
-    await client.messages.create({ from, to: farm.phone, body: message });
+    await sendSMS(farm.phone, message);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("Twilio error:", msg);
-    return NextResponse.json({ error: `Twilio error: ${msg}` }, { status: 502 });
+    console.error("TextBelt error:", msg);
+    return NextResponse.json({ error: msg }, { status: 502 });
   }
 
   if (isTest) {
