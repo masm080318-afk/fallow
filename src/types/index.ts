@@ -13,6 +13,8 @@ export interface Farm {
   crop_type: string | null;
   pending_capture: boolean;
   instant_reading_requested: boolean;
+  invite_token: string | null;
+  frost_alerts_enabled: boolean;
 }
 
 export interface SensorNode {

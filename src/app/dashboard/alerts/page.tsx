@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { AlertLog, Farm } from "@/types";
-import { Bell, BellOff, Send, Droplets, AlertCircle } from "lucide-react";
+import { Bell, BellOff, Send, Droplets, AlertCircle, Info, CheckCircle, XCircle } from "lucide-react";
 
 export default function AlertsPage() {
   const [farm, setFarm] = useState<Farm | null>(null);
@@ -11,6 +11,11 @@ export default function AlertsPage() {
   const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(false);
   const [testMsg, setTestMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [twilioInfo, setTwilioInfo] = useState<{
+    twilio_sid_set: boolean; twilio_token_set: boolean;
+    twilio_from: string | null; farm_phone: string | null; sid_preview: string | null;
+  } | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
 
   const load = async () => {
     const supabase = createClient();
@@ -44,6 +49,13 @@ export default function AlertsPage() {
     const next = !farm.alerts_enabled;
     setFarm({ ...farm, alerts_enabled: next });
     await supabase.from("farms").update({ alerts_enabled: next }).eq("id", farm.id);
+  };
+
+  const loadTwilioDebug = async () => {
+    setShowDebug(true);
+    const res = await fetch("/api/twilio-check");
+    const json = await res.json();
+    setTwilioInfo(json);
   };
 
   const sendTest = async () => {
@@ -137,17 +149,42 @@ export default function AlertsPage() {
         </button>
 
         {testMsg && (
-          <p
-            className="text-sm text-center rounded-xl py-2.5 px-3"
+          <p className="text-sm text-center rounded-xl py-2.5 px-3"
             style={{
               color: testMsg.ok ? "var(--green)" : "var(--red)",
               background: testMsg.ok ? "rgba(92,158,42,0.06)" : "rgba(192,57,43,0.06)",
               border: `1px solid ${testMsg.ok ? "rgba(92,158,42,0.2)" : "rgba(192,57,43,0.2)"}`,
-            }}
-          >
+            }}>
             {testMsg.text}
           </p>
         )}
+
+        {/* Twilio debug panel */}
+        {!showDebug ? (
+          <button onClick={loadTwilioDebug} className="w-full text-xs py-2 !min-h-0 !border-0 !bg-transparent" style={{ color: "var(--muted)" }}>
+            <Info size={11} className="inline mr-1" /> SMS not working? Check configuration
+          </button>
+        ) : twilioInfo ? (
+          <div className="rounded-xl p-3 space-y-1.5 text-xs" style={{ background: "rgba(0,0,0,0.03)", border: "1px solid var(--border)" }}>
+            <p className="font-semibold mb-2">Twilio configuration</p>
+            {[
+              { label: "Account SID", ok: twilioInfo.twilio_sid_set, detail: twilioInfo.sid_preview },
+              { label: "Auth token", ok: twilioInfo.twilio_token_set, detail: twilioInfo.twilio_token_set ? "Set" : "Missing" },
+              { label: "From number", ok: !!twilioInfo.twilio_from, detail: twilioInfo.twilio_from ?? "Missing — set TWILIO_FROM in Vercel env vars" },
+              { label: "Farm phone", ok: !!twilioInfo.farm_phone, detail: twilioInfo.farm_phone ?? "Not set — add in Settings" },
+            ].map(({ label, ok, detail }) => (
+              <div key={label} className="flex items-start gap-2">
+                {ok ? <CheckCircle size={12} style={{ color: "var(--green)", marginTop: 1, flexShrink: 0 }} /> : <XCircle size={12} style={{ color: "var(--red)", marginTop: 1, flexShrink: 0 }} />}
+                <span style={{ color: "var(--muted)" }}><strong style={{ color: "var(--foreground)" }}>{label}:</strong> {detail}</span>
+              </div>
+            ))}
+            <p className="pt-1" style={{ color: "var(--muted)" }}>
+              Trial accounts can only text <strong style={{ color: "var(--foreground)" }}>verified numbers</strong>. Go to{" "}
+              <a href="https://console.twilio.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--green)" }}>console.twilio.com</a>
+              {" "}→ Phone Numbers → Verified Caller IDs to add your number.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {/* History card */}
