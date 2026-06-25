@@ -1,7 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-
-// Returns the active farm for a user — either one they own or one shared with them.
-export async function getActiveFarm(supabase: SupabaseClient) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getActiveFarm(supabase: any) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
@@ -18,7 +16,8 @@ export async function getActiveFarm(supabase: SupabaseClient) {
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
-    if (mem?.farms) return mem.farms as Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (mem?.farms) return (mem as any).farms;
   } catch { /* table not yet created */ }
 
   return null;

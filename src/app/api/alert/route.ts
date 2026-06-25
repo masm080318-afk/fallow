@@ -12,13 +12,18 @@ interface AlertBody {
   alert_type?: "low_moisture" | "frost";
 }
 
+function fetchWithTimeout(url: string, ms = 5000): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+}
+
 async function checkRainRecently(lat: number, lon: number): Promise<number> {
   try {
     const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().split("T")[0];
     const today = new Date().toISOString().split("T")[0];
-    const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=auto&start_date=${yesterday}&end_date=${today}`,
-      { signal: AbortSignal.timeout(5000) }
+    const res = await fetchWithTimeout(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=precipitation_sum&timezone=auto&start_date=${yesterday}&end_date=${today}`
     );
     const d = await res.json();
     return (d.daily?.precipitation_sum ?? []).reduce((a: number, b: number | null) => a + (b ?? 0), 0);
@@ -29,9 +34,8 @@ async function checkRainRecently(lat: number, lon: number): Promise<number> {
 
 async function getOutdoorTempF(lat: number, lon: number): Promise<number | null> {
   try {
-    const res = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`,
-      { signal: AbortSignal.timeout(5000) }
+    const res = await fetchWithTimeout(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m&temperature_unit=fahrenheit&timezone=auto`
     );
     const d = await res.json();
     return d.current?.temperature_2m ?? null;
