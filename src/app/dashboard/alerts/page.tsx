@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getClientActiveFarm } from "@/lib/supabase/activeFarm";
 import type { AlertLog, Farm } from "@/types";
 import { Bell, BellOff, Send, Droplets, AlertCircle, Info, CheckCircle, XCircle } from "lucide-react";
 
@@ -19,21 +20,14 @@ export default function AlertsPage() {
 
   const load = async () => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: farmRow } = await supabase
-      .from("farms")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-    if (!farmRow) return;
-    setFarm(farmRow as Farm);
+    const result = await getClientActiveFarm();
+    if (!result) return;
+    setFarm(result.farm);
 
     const { data: alertsRow } = await supabase
       .from("alerts_log")
       .select("*")
-      .eq("farm_id", farmRow.id)
+      .eq("farm_id", result.farm.id)
       .order("sent_at", { ascending: false })
       .limit(50);
 

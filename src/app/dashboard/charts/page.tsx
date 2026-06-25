@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getClientActiveFarm } from "@/lib/supabase/activeFarm";
 import MoistureChart from "@/components/charts/MoistureChart";
 import TemperatureChart from "@/components/charts/TemperatureChart";
 import type { Reading, Farm } from "@/types";
@@ -38,11 +39,10 @@ export default function ChartsPage() {
 
       let fid = farmId;
       if (!fid) {
-        const { data: farmRow } = await supabase
-          .from("farms").select("*").eq("user_id", user.id).single();
-        if (!farmRow) return;
-        setFarm(farmRow as Farm);
-        fid = farmRow.id;
+        const result = await getClientActiveFarm();
+        if (!result) return;
+        setFarm(result.farm);
+        fid = result.farm.id;
         setFarmId(fid);
       }
 
