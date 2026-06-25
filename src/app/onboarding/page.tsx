@@ -20,10 +20,16 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
-      supabase.from("farms").select("id").eq("user_id", user.id).maybeSingle()
-        .then(({ data: farm }) => { if (farm) router.replace("/dashboard"); });
+      // Owns a farm
+      const { data: farm } = await supabase.from("farms").select("id").eq("user_id", user.id).maybeSingle();
+      if (farm) { router.replace("/dashboard"); return; }
+      // Member of a shared farm
+      try {
+        const { data: mem } = await supabase.from("farm_members").select("id").eq("user_id", user.id).maybeSingle();
+        if (mem) { router.replace("/dashboard"); return; }
+      } catch { /* table not yet created */ }
     });
   }, [router]);
 
