@@ -54,8 +54,8 @@ export default function TemperatureChart({
             <Tooltip
               contentStyle={{ background: "#ffffff", border: "1px solid #dfe8dc", borderRadius: 8, fontSize: 12, color: "#1c2c1a" }}
               labelStyle={{ color: "#1c2c1a" }}
-              formatter={(val: number, name: string) => [
-                val != null ? `${val.toFixed(1)}°F` : "—",
+              formatter={(val, name) => [
+                val != null ? `${Number(val).toFixed(1)}°F` : "—",
                 name === "temperature" ? "Sensor" : name === "outdoorTemp" ? "Outdoor" : "Prev period",
               ]}
             />

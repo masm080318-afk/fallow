@@ -47,7 +47,7 @@ export default function MoistureChart({
             <Tooltip
               contentStyle={{ background: "#ffffff", border: "1px solid #dfe8dc", borderRadius: 8, fontSize: 12, color: "#1c2c1a" }}
               labelStyle={{ color: "#1c2c1a" }}
-              formatter={(val: number, name: string) => [
+              formatter={(val, name) => [
                 val != null ? `${val}%` : "—",
                 name === "moisture" ? "Moisture" : "Prev period",
               ]}
