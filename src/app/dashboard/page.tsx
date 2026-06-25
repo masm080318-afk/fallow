@@ -10,11 +10,12 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 async function getActiveFarm(svc: ReturnType<typeof createServiceClient>, userId: string) {
-  // Owned farm
-  const { data: owned } = await svc.from("farms").select("*").eq("user_id", userId).maybeSingle();
+  // Owned farm — primary path, must always work
+  const { data: owned, error } = await svc.from("farms").select("*").eq("user_id", userId).maybeSingle();
+  if (error) console.error("farm lookup error:", error.message);
   if (owned) return owned as Farm;
 
-  // Shared farm via farm_members
+  // Shared farm via farm_members — only if owned lookup returned nothing
   try {
     const { data: mem } = await svc
       .from("farm_members")
@@ -24,7 +25,7 @@ async function getActiveFarm(svc: ReturnType<typeof createServiceClient>, userId
       .maybeSingle();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((mem as any)?.farms) return (mem as any).farms as Farm;
-  } catch { /* table not yet created */ }
+  } catch { /* farm_members table not yet created — safe to ignore */ }
 
   return null;
 }
