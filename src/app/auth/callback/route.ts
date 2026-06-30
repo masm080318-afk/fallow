@@ -24,9 +24,17 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${baseUrl}/login?error=auth`);
   }
 
-  // If caller supplied a `next` URL, respect it (used by invite/join flow)
+  // If caller supplied a `next` URL param, respect it
   if (next) {
     return NextResponse.redirect(`${baseUrl}${next}`);
+  }
+
+  // Cookie-based invite redirect (more reliable than query params through OAuth)
+  const pendingInvite = request.cookies.get("pending_invite")?.value;
+  if (pendingInvite) {
+    const res = NextResponse.redirect(`${baseUrl}/join/${pendingInvite}`);
+    res.cookies.delete("pending_invite");
+    return res;
   }
 
   const { data: { user } } = await supabase.auth.getUser();
