@@ -11,9 +11,9 @@ export const dynamic = "force-dynamic";
 // Flow: /join/TOKEN → OAuth (redirectTo: /auth/callback/join/TOKEN) → here → /dashboard
 export async function GET(
   request: NextRequest,
-  ctx: RouteContext<"/auth/callback/join/[token]">
+  { params }: { params: Promise<{ token: string }> }
 ) {
-  const { token } = await ctx.params;
+  const { token } = await params;
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
 
@@ -47,7 +47,6 @@ export async function GET(
     .maybeSingle();
 
   if (!farm) {
-    // Token is invalid or revoked — send to onboarding with an error flag
     return NextResponse.redirect(`${baseUrl}/onboarding?invite_error=invalid`);
   }
 
@@ -56,8 +55,7 @@ export async function GET(
     return NextResponse.redirect(`${baseUrl}/dashboard`);
   }
 
-  // Delete the joiner's empty farm (created during a previous onboarding attempt)
-  // so the shared farm becomes their active one
+  // Delete the joiner's empty farm (no readings = safe to remove)
   const { data: ownFarm } = await svc
     .from("farms")
     .select("id")
@@ -75,7 +73,7 @@ export async function GET(
     }
   }
 
-  // Upsert membership (no-op if already a member)
+  // Add to farm_members (skip if already a member)
   const { data: existing } = await svc
     .from("farm_members")
     .select("id")
