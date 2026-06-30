@@ -16,32 +16,18 @@ export default function JoinFarmPage() {
     (async () => {
       const supabase = createClient();
 
-      // After OAuth, Supabase redirects back to this page with ?code=...
-      // Exchange it here in the browser — the PKCE verifier was stored in this
-      // tab's cookies when signInWithOAuth was called, so it's still accessible.
-      const urlCode = new URLSearchParams(window.location.search).get("code");
-      if (urlCode) {
-        setStatus("joining");
-        const { error: exchError } = await supabase.auth.exchangeCodeForSession(urlCode);
-        // Remove the code from the URL so a page refresh doesn't re-attempt exchange
-        window.history.replaceState({}, "", `/join/${token}`);
-        if (exchError) {
-          setStatus("error");
-          setMessage(`Sign-in failed: ${exchError.message}. Please try the link again.`);
-          return;
-        }
-        // Fall through — user is now signed in
-      }
-
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        // Not signed in — redirect to Google, come back to this same page
+        // Not signed in — trigger Google OAuth.
+        // redirectTo points at the dedicated server-side route which reads the
+        // PKCE verifier from the HTTP Cookie header (reliable), does the code
+        // exchange, inserts the farm_members row, and redirects to /dashboard.
         setStatus("signing-in");
         await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: `${window.location.origin}/join/${token}`,
+            redirectTo: `${window.location.origin}/auth/callback/join/${token}`,
           },
         });
         return;
