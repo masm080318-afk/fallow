@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { CheckCircle, XCircle, Loader } from "lucide-react";
@@ -9,14 +9,24 @@ import { CheckCircle, XCircle, Loader } from "lucide-react";
 export default function JoinFarmPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
-  const [status, setStatus] = useState<"loading" | "signing-in" | "joining" | "done" | "error">("loading");
-  const [message, setMessage] = useState("");
+  const searchParams = useSearchParams();
+
+  const urlError = searchParams.get("error");
+
+  const [status, setStatus] = useState<
+    "loading" | "signing-in" | "joining" | "done" | "error"
+  >(urlError ? "error" : "loading");
+  const [message, setMessage] = useState(urlError ?? "");
 
   useEffect(() => {
+    if (urlError) return; // already showing error from URL
+
     (async () => {
       const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
         // Not signed in — hand off to the server-side OAuth initiator.
@@ -28,7 +38,7 @@ export default function JoinFarmPage() {
         return;
       }
 
-      // Signed in — call the join API
+      // Signed in — call the join API directly
       setStatus("joining");
       const res = await fetch("/api/farm/join", {
         method: "POST",
@@ -37,7 +47,9 @@ export default function JoinFarmPage() {
       });
 
       let json: Record<string, string> = {};
-      try { json = await res.json(); } catch { /* empty body */ }
+      try {
+        json = await res.json();
+      } catch { /* empty body */ }
 
       if (res.ok || res.status === 409) {
         setStatus("done");
@@ -45,10 +57,12 @@ export default function JoinFarmPage() {
         setTimeout(() => router.replace("/dashboard"), 1500);
       } else {
         setStatus("error");
-        setMessage(json.error ?? `Join failed (${res.status}). Please try the link again.`);
+        setMessage(
+          json.error ?? `Join failed (${res.status}). Please try the link again.`
+        );
       }
     })();
-  }, [token, router]);
+  }, [token, router, urlError]);
 
   return (
     <main
@@ -61,9 +75,15 @@ export default function JoinFarmPage() {
 
         {status === "loading" || status === "signing-in" || status === "joining" ? (
           <>
-            <Loader size={28} className="animate-spin" style={{ color: "var(--green)" }} />
+            <Loader
+              size={28}
+              className="animate-spin"
+              style={{ color: "var(--green)" }}
+            />
             <p className="text-sm" style={{ color: "var(--muted)" }}>
-              {status === "signing-in" ? "Redirecting to Google…" : "Joining farm…"}
+              {status === "signing-in"
+                ? "Redirecting to Google…"
+                : "Joining farm…"}
             </p>
           </>
         ) : status === "done" ? (
@@ -76,11 +96,18 @@ export default function JoinFarmPage() {
           </>
         ) : (
           <>
-            <XCircle size={40} style={{ color: "var(--red)" }} />
-            <p className="font-semibold" style={{ color: "var(--red)" }}>
-              {message}
+            <XCircle size={40} style={{ color: "var(--red, #e53e3e)" }} />
+            <p
+              className="font-semibold"
+              style={{ color: "var(--red, #e53e3e)" }}
+            >
+              {message || "Something went wrong. Please try the link again."}
             </p>
-            <a href={`/join/${token}`} className="text-sm underline" style={{ color: "var(--green)" }}>
+            <a
+              href={`/join/${token}`}
+              className="text-sm underline"
+              style={{ color: "var(--green)" }}
+            >
               Try again
             </a>
           </>
