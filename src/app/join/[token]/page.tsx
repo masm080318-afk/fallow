@@ -19,12 +19,14 @@ export default function JoinFarmPage() {
 
       if (!user) {
         setStatus("signing-in");
-        // sessionStorage survives the full OAuth redirect chain within the same tab.
-        // Onboarding reads it and calls the join API after sign-in completes.
-        sessionStorage.setItem("pending_invite", token);
+        // Token travels in the URL as ?next=/join/TOKEN so it survives any browser
+        // context switch (e.g. Gmail WebView → Safari). auth/callback reads "next"
+        // and redirects the now-signed-in user back to this page to complete the join.
         await supabase.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: `${window.location.origin}/auth/callback` },
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=/join/${token}`,
+          },
         });
         return;
       }

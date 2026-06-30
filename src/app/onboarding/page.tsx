@@ -22,24 +22,6 @@ export default function OnboardingPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
-
-      // If the user arrived here via an invite link, sessionStorage holds the token.
-      // Complete the join before showing the onboarding UI.
-      const pendingInvite = sessionStorage.getItem("pending_invite");
-      if (pendingInvite) {
-        sessionStorage.removeItem("pending_invite");
-        const res = await fetch("/api/farm/join", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: pendingInvite }),
-        });
-        if (res.ok || res.status === 409) {
-          router.replace("/dashboard");
-          return;
-        }
-        // Join failed (bad token etc.) — fall through to normal onboarding
-      }
-
       // Owns a farm
       const { data: farm } = await supabase.from("farms").select("id").eq("user_id", user.id).maybeSingle();
       if (farm) { router.replace("/dashboard"); return; }

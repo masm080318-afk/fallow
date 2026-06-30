@@ -25,6 +25,14 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(`${baseUrl}/login?error=auth`);
 
+  // If OAuth was triggered from an invite link, next=/join/TOKEN is in the URL.
+  // Send the signed-in user back to the join page to complete the farm join.
+  // Only allow /join/ paths to prevent open redirect abuse.
+  const next = searchParams.get("next");
+  if (next && next.startsWith("/join/")) {
+    return NextResponse.redirect(`${baseUrl}${next}`);
+  }
+
   // Owned farm
   const { data: farm } = await supabase
     .from("farms").select("id").eq("user_id", user.id).maybeSingle();
@@ -38,8 +46,5 @@ export async function GET(request: Request) {
     if (mem?.farm_id) return NextResponse.redirect(`${baseUrl}/dashboard`);
   } catch { /* table not yet created */ }
 
-  // No farm found — go to onboarding.
-  // If the user came from an invite link, sessionStorage holds the token and
-  // onboarding/page.tsx will call /api/farm/join automatically before showing any UI.
   return NextResponse.redirect(`${baseUrl}/onboarding`);
 }
