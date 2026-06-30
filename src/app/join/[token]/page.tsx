@@ -19,9 +19,9 @@ export default function JoinFarmPage() {
 
       if (!user) {
         setStatus("signing-in");
-        // Store the token in a cookie so the auth callback can redirect back here.
-        // Cookies survive the OAuth redirect chain; query params on redirectTo do not.
-        document.cookie = `pending_invite=${token}; path=/; max-age=600; SameSite=Lax`;
+        // sessionStorage survives the full OAuth redirect chain within the same tab.
+        // Onboarding reads it and calls the join API after sign-in completes.
+        sessionStorage.setItem("pending_invite", token);
         await supabase.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo: `${window.location.origin}/auth/callback` },
