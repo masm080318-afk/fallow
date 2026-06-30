@@ -19,17 +19,12 @@ export default function JoinFarmPage() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        // Not signed in — trigger Google OAuth.
-        // redirectTo points at the dedicated server-side route which reads the
-        // PKCE verifier from the HTTP Cookie header (reliable), does the code
-        // exchange, inserts the farm_members row, and redirects to /dashboard.
+        // Not signed in — hand off to the server-side OAuth initiator.
+        // That route stores the PKCE verifier in a Set-Cookie response header
+        // (not document.cookie) so Chrome privacy features can't clear it,
+        // and sets a pending_invite cookie that /auth/callback reads after sign-in.
         setStatus("signing-in");
-        await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/auth/callback/join/${token}`,
-          },
-        });
+        window.location.href = `/api/invite-oauth/${token}`;
         return;
       }
 
