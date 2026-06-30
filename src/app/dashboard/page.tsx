@@ -15,16 +15,19 @@ async function getActiveFarm(svc: ReturnType<typeof createServiceClient>, userId
   if (error) console.error("farm lookup error:", error.message);
   if (owned) return owned as Farm;
 
-  // Shared farm via farm_members — only if owned lookup returned nothing
+  // Shared farm via farm_members (two queries — nested selects can silently fail)
   try {
     const { data: mem } = await svc
       .from("farm_members")
-      .select("farms(*)")
+      .select("farm_id")
       .eq("user_id", userId)
       .limit(1)
       .maybeSingle();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((mem as any)?.farms) return (mem as any).farms as Farm;
+    if (mem?.farm_id) {
+      const { data: shared } = await svc
+        .from("farms").select("*").eq("id", mem.farm_id).maybeSingle();
+      if (shared) return shared as Farm;
+    }
   } catch { /* farm_members table not yet created — safe to ignore */ }
 
   return null;

@@ -7,26 +7,26 @@ export async function getActiveFarm(supabase: any) {
     .from("farms").select("*").eq("user_id", user.id).maybeSingle();
 
   if (owned) {
-    // If owned farm has readings it's the real farm — use it.
     const { data: reading } = await supabase
       .from("readings").select("id").eq("farm_id", owned.id).limit(1).maybeSingle();
     if (reading) return owned;
-    // Owned farm is empty — fall through to shared farms.
   }
 
+  // Two-step lookup — nested selects on farm_members can silently return null
   try {
     const { data: mem } = await supabase
       .from("farm_members")
-      .select("farm_id, farms(*)")
+      .select("farm_id")
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (mem?.farms) return (mem as any).farms;
+    if (mem?.farm_id) {
+      const { data: shared } = await supabase
+        .from("farms").select("*").eq("id", mem.farm_id).maybeSingle();
+      if (shared) return shared;
+    }
   } catch { /* table not yet created */ }
 
-  // Owner with no sensor yet — return owned farm
   if (owned) return owned;
-
   return null;
 }

@@ -28,25 +28,31 @@ export default async function DashboardLayout({
     );
   }
 
-  // Check shared farm via farm_members
+  // Check shared farm via farm_members (two queries — nested selects can silently fail)
   try {
     const { data: mem } = await svc
       .from("farm_members")
-      .select("farms(name)")
+      .select("farm_id")
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sharedName = (mem as any)?.farms?.name as string | undefined;
-    if (sharedName) {
-      return (
-        <div className="flex flex-col min-h-screen">
-          <Header farmName={sharedName} />
-          <div className="flex-1 pb-20">{children}</div>
-          <Navbar />
-        </div>
-      );
+    if (mem?.farm_id) {
+      const { data: sharedFarm } = await svc
+        .from("farms")
+        .select("name")
+        .eq("id", mem.farm_id)
+        .maybeSingle();
+
+      if (sharedFarm?.name) {
+        return (
+          <div className="flex flex-col min-h-screen">
+            <Header farmName={sharedFarm.name} />
+            <div className="flex-1 pb-20">{children}</div>
+            <Navbar />
+          </div>
+        );
+      }
     }
   } catch { /* farm_members table not yet created */ }
 
