@@ -25,14 +25,6 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(`${baseUrl}/login?error=auth`);
 
-  // If OAuth was triggered from an invite link, next=/join/TOKEN is in the URL.
-  // Send the signed-in user back to the join page to complete the farm join.
-  // Only allow /join/ paths to prevent open redirect abuse.
-  const next = searchParams.get("next");
-  if (next && next.startsWith("/join/")) {
-    return NextResponse.redirect(`${baseUrl}${next}`);
-  }
-
   // Owned farm
   const { data: farm } = await supabase
     .from("farms").select("id").eq("user_id", user.id).maybeSingle();

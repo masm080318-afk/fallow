@@ -19,13 +19,13 @@ export default function JoinFarmPage() {
 
       if (!user) {
         setStatus("signing-in");
-        // Token travels in the URL as ?next=/join/TOKEN so it survives any browser
-        // context switch (e.g. Gmail WebView → Safari). auth/callback reads "next"
-        // and redirects the now-signed-in user back to this page to complete the join.
+        // Token lives in the URL PATH so Supabase never strips it.
+        // The dedicated route at /auth/callback/join/TOKEN handles the code
+        // exchange, farm join, and dashboard redirect entirely server-side.
         await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: `${window.location.origin}/auth/callback?next=/join/${token}`,
+            redirectTo: `${window.location.origin}/auth/callback/join/${token}`,
           },
         });
         return;
