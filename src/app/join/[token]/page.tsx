@@ -18,11 +18,13 @@ export default function JoinFarmPage() {
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
-        // Redirect to login, come back after
         setStatus("signing-in");
+        // Pass next=/join/TOKEN so the auth callback returns here after sign-in
         await supabase.auth.signInWithOAuth({
           provider: "google",
-          options: { redirectTo: `${window.location.origin}/join/${token}` },
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback?next=/join/${token}`,
+          },
         });
         return;
       }
