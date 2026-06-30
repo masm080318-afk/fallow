@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -30,7 +31,8 @@ export async function GET(request: Request) {
   }
 
   // Cookie-based invite redirect (more reliable than query params through OAuth)
-  const pendingInvite = request.cookies.get("pending_invite")?.value;
+  const cookieStore = await cookies();
+  const pendingInvite = cookieStore.get("pending_invite")?.value;
   if (pendingInvite) {
     const res = NextResponse.redirect(`${baseUrl}/join/${pendingInvite}`);
     res.cookies.delete("pending_invite");
