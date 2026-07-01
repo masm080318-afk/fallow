@@ -57,18 +57,30 @@ export async function updateSession(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } }
     );
-    const { data: farm } = await svc
+    const { data: ownedFarm } = await svc
       .from("farms")
       .select("id")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (!farm && path.startsWith("/dashboard")) {
+    // Also accept users who joined via invite (farm_members row, no owned farm).
+    let hasFarmAccess = !!ownedFarm;
+    if (!hasFarmAccess) {
+      const { data: mem } = await svc
+        .from("farm_members")
+        .select("farm_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .maybeSingle();
+      if (mem?.farm_id) hasFarmAccess = true;
+    }
+
+    if (!hasFarmAccess && path.startsWith("/dashboard")) {
       const url = request.nextUrl.clone();
       url.pathname = "/onboarding";
       return NextResponse.redirect(url);
     }
-    if (farm && path === "/onboarding") {
+    if (hasFarmAccess && path === "/onboarding") {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
       return NextResponse.redirect(url);
