@@ -28,9 +28,12 @@ export default async function DashboardLayout({
     );
   }
 
-  // Check shared farm via farm_members (two queries — nested selects can silently fail)
+  // Check shared farm via farm_members.
+  // Use the session-aware anon client here — the service client can silently return null
+  // if its key is misconfigured, while the anon client's RLS (user_id = auth.uid()) is
+  // guaranteed to work whenever the user is authenticated.
   try {
-    const { data: mem } = await svc
+    const { data: mem } = await supabase
       .from("farm_members")
       .select("farm_id")
       .eq("user_id", user.id)
