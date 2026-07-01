@@ -25,7 +25,8 @@ export async function GET() {
   const today = new Date().toISOString().slice(0, 10);
   const svc = createServiceClient();
 
-  // Return cached result if already calculated today
+  // Return cached weather/ET result if already calculated today,
+  // but always recompute the recommendation from the latest sensor reading.
   const { data: cached } = await svc
     .from("et_readings")
     .select("*")
@@ -33,7 +34,40 @@ export async function GET() {
     .eq("date", today)
     .maybeSingle();
 
-  if (cached) return NextResponse.json(cached);
+  if (cached) {
+    const { data: freshReading } = await svc
+      .from("readings")
+      .select("moisture_percent")
+      .eq("farm_id", farm.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (freshReading?.moisture_percent !== null && freshReading?.moisture_percent !== undefined) {
+      const moisture = freshReading.moisture_percent as number;
+      const waterNeeded = cached.etc_mm - cached.precipitation_mm;
+      let recommend: "water" | "skip" | "unknown" = "unknown";
+      let recommend_mm: number | null = null;
+      let recommend_reason = "";
+
+      if (moisture < 30 || (moisture < 50 && waterNeeded > 3)) {
+        recommend = "water";
+        recommend_mm = Math.max(0, Math.round(waterNeeded * 10) / 10);
+        recommend_reason = moisture < 30
+          ? `Soil is dry (${moisture}%) and crop needs ${cached.etc_mm} mm today`
+          : `Soil at ${moisture}% — net ET demand is ${waterNeeded.toFixed(1)} mm after ${cached.precipitation_mm} mm rain`;
+      } else {
+        recommend = "skip";
+        recommend_reason = moisture >= 50
+          ? `Soil moisture is sufficient (${moisture}%)`
+          : `ET demand (${waterNeeded.toFixed(1)} mm net) is low enough to skip today`;
+      }
+
+      return NextResponse.json({ ...cached, recommend, recommend_mm, recommend_reason });
+    }
+
+    return NextResponse.json(cached);
+  }
 
   // Fetch today's weather from Open-Meteo (no API key needed)
   const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${farm.latitude}&longitude=${farm.longitude}&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min,wind_speed_10m_max,shortwave_radiation_sum,precipitation_sum&wind_speed_unit=ms&timezone=auto&forecast_days=1`;
