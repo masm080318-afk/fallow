@@ -29,23 +29,24 @@ export default async function DashboardLayout({
   }
 
   // Check shared farm via farm_members.
-  // Use the session-aware anon client here — the service client can silently return null
-  // if its key is misconfigured, while the anon client's RLS (user_id = auth.uid()) is
-  // guaranteed to work whenever the user is authenticated.
   try {
-    const { data: mem } = await supabase
+    const { data: mem, error: memErr } = await supabase
       .from("farm_members")
       .select("farm_id")
       .eq("user_id", user.id)
       .limit(1)
       .maybeSingle();
 
+    console.log(`[dashboard] uid=${user.id} mem=${JSON.stringify(mem)} memErr=${JSON.stringify(memErr)}`);
+
     if (mem?.farm_id) {
-      const { data: sharedFarm } = await svc
+      const { data: sharedFarm, error: farmErr } = await svc
         .from("farms")
         .select("name")
         .eq("id", mem.farm_id)
         .maybeSingle();
+
+      console.log(`[dashboard] farm_id=${mem.farm_id} sharedFarm=${JSON.stringify(sharedFarm)} farmErr=${JSON.stringify(farmErr)}`);
 
       if (sharedFarm?.name) {
         return (
@@ -57,7 +58,10 @@ export default async function DashboardLayout({
         );
       }
     }
-  } catch { /* farm_members table not yet created */ }
+  } catch (e) {
+    console.error("[dashboard] farm_members error:", e);
+  }
 
+  console.log(`[dashboard] uid=${user.id} → onboarding`);
   redirect("/onboarding");
 }
