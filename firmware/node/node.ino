@@ -31,7 +31,11 @@
 #define LORA_BUSY 13
 #define LORA_DIO1 14
 
-SX1262 radio = new Module(LORA_NSS, LORA_DIO1, LORA_RST, LORA_BUSY);
+// The SX1262 on this board is wired to custom SPI pins — the radio is NOT
+// on the default SPI bus. Without this explicit mapping, radio.begin()
+// hangs forever waiting on a chip it can't reach.
+SPIClass hspi(HSPI);
+SX1262 radio = new Module(LORA_NSS, LORA_DIO1, LORA_RST, LORA_BUSY, hspi);
 
 // ─── SENSOR CONFIG ───────────────────────────────────────────────────────────
 #define SOIL_PIN 1
@@ -61,6 +65,9 @@ void setup() {
   Serial.println("=== Soilify LoRa Node Waking ===");
   Serial.print("Node ID: ");
   Serial.println(nodeId());
+
+  // Map SPI to the board's actual radio pins before touching the SX1262
+  hspi.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_NSS);
 
   // Init LoRa radio
   Serial.print("Initializing LoRa... ");
