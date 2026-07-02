@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Farm, SensorNode } from "@/types";
-import { Save, Plus, Trash2, Copy, Check, MapPin, Cpu, Settings2, Radio, Share2, Snowflake, UserX, RefreshCw } from "lucide-react";
+import { Save, Plus, Trash2, Copy, Check, MapPin, Cpu, Settings2, Radio, Share2, Snowflake, UserX, RefreshCw, Wifi, Pencil, ChevronDown, ChevronUp } from "lucide-react";
 import { CROP_TYPES } from "@/lib/et/crop-coefficients";
 
 export default function SettingsPage() {
@@ -27,6 +27,13 @@ export default function SettingsPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Gateway pairing + sensor rename + advanced section
+  const [pairCode, setPairCode] = useState<string | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   const load = async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -38,9 +45,35 @@ export default function SettingsPage() {
         .from("sensor_nodes").select("*").eq("farm_id", farmRow.id).order("created_at");
       setNodes((nodesRow ?? []) as SensorNode[]);
     }
+    // Gateway pairing code (generated server-side on first request)
+    try {
+      const res = await fetch("/api/farm/pairing-code");
+      const json = await res.json();
+      if (res.ok && json.code) setPairCode(json.code);
+    } catch { /* non-fatal */ }
   };
 
   useEffect(() => { load(); }, []);
+
+  const copyCode = () => {
+    if (!pairCode) return;
+    navigator.clipboard.writeText(pairCode);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 1500);
+  };
+
+  const renameNode = async (id: string) => {
+    if (!editName.trim()) { setEditingId(null); return; }
+    const res = await fetch("/api/nodes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, name: editName.trim() }),
+    });
+    if (res.ok) {
+      setNodes((n) => n.map((x) => (x.id === id ? { ...x, name: editName.trim() } : x)));
+    }
+    setEditingId(null);
+  };
 
   const save = async () => {
     if (!farm) return;
@@ -271,23 +304,42 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* Farm ID */}
-      <div className="card space-y-3">
-        <h2 className="font-bold text-sm">Farm ID</h2>
-        <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
-          Paste this into your Arduino sketch so the sensor knows which farm it belongs to.
-        </p>
+      {/* Gateway pairing */}
+      <div className="card space-y-4">
         <div className="flex items-center gap-2">
-          <code className="flex-1 rounded-xl px-3 py-2.5 text-xs break-all font-mono"
-            style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--foreground)" }}>
-            {farm.id}
-          </code>
-          <button
-            onClick={() => { navigator.clipboard.writeText(farm.id); setCopiedFarmId(true); setTimeout(() => setCopiedFarmId(false), 1500); }}
-            className="btn-secondary !px-3 shrink-0" aria-label="Copy Farm ID">
-            {copiedFarmId ? <Check size={15} style={{ color: "var(--green)" }} /> : <Copy size={15} />}
-          </button>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+            <Wifi size={14} style={{ color: "var(--green)" }} />
+          </div>
+          <div>
+            <h2 className="font-bold text-sm">Gateway pairing code</h2>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>Links your gateway to this farm</p>
+          </div>
         </div>
+
+        <div
+          className="rounded-2xl py-5 px-4 text-center"
+          style={{
+            background: "linear-gradient(135deg, rgba(92,158,42,0.08), rgba(92,158,42,0.03))",
+            border: "1px solid rgba(92,158,42,0.2)",
+          }}
+        >
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-4xl font-black tracking-[0.25em]" style={{ color: "var(--green)" }}>
+              {pairCode ?? "······"}
+            </span>
+            {pairCode && (
+              <button onClick={copyCode} className="btn-secondary !px-3 !min-h-0 !py-2 shrink-0" aria-label="Copy pairing code">
+                {copiedCode ? <Check size={15} style={{ color: "var(--green)" }} /> : <Copy size={15} />}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+          Setting up a gateway? Plug it in, join the <strong>“Soilify-Setup”</strong> WiFi from your phone,
+          then pick your home WiFi and type this code on the page that opens.
+          Sensors appear below automatically — nothing to type or flash.
+        </p>
       </div>
 
       {/* Share farm */}
@@ -348,26 +400,47 @@ export default function SettingsPage() {
             {nodes.map((n) => (
               <li key={n.id} className="rounded-xl px-4 py-3 space-y-2"
                 style={{ background: "rgba(92,158,42,0.04)", border: "1px solid rgba(92,158,42,0.1)" }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold text-sm">{n.name}</div>
-                    <div className="text-xs font-mono mt-0.5" style={{ color: "var(--muted)" }}>{n.node_id}</div>
-                  </div>
+                <div className="flex items-center justify-between gap-2">
+                  {editingId === n.id ? (
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && renameNode(n.id)}
+                        autoFocus
+                        className="!min-h-0 !py-2 text-sm"
+                        placeholder="e.g. North field"
+                      />
+                      <button onClick={() => renameNode(n.id)}
+                        className="w-9 h-9 flex items-center justify-center rounded-lg !min-h-0 !p-0 !border-0 shrink-0"
+                        style={{ background: "rgba(92,158,42,0.12)", color: "var(--green)" }} aria-label="Save name">
+                        <Check size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm truncate">{n.name}</span>
+                        <button
+                          onClick={() => { setEditingId(n.id); setEditName(n.name === "New sensor" ? "" : n.name); }}
+                          className="w-6 h-6 flex items-center justify-center rounded-md !min-h-0 !p-0 !bg-transparent !border-0 shrink-0"
+                          style={{ color: "var(--muted)" }} aria-label="Rename sensor">
+                          <Pencil size={12} />
+                        </button>
+                        {n.name === "New sensor" && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                            style={{ background: "rgba(184,134,11,0.12)", color: "var(--yellow)" }}>
+                            just joined — give it a name
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs font-mono mt-0.5" style={{ color: "var(--muted)" }}>{n.node_id}</div>
+                    </div>
+                  )}
                   <button onClick={() => removeNode(n.id)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors !min-h-0 !p-0 !bg-transparent !border-0 hover:bg-red-50"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors !min-h-0 !p-0 !bg-transparent !border-0 hover:bg-red-50 shrink-0"
                     style={{ color: "var(--muted)" }} aria-label="Remove sensor">
                     <Trash2 size={15} />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-[10px] font-mono rounded-lg px-2 py-1.5 break-all"
-                    style={{ background: "rgba(0,0,0,0.05)", color: "var(--muted)" }}>
-                    {n.id}
-                  </code>
-                  <button onClick={() => navigator.clipboard.writeText(n.id)}
-                    className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors !min-h-0 !p-0 !bg-transparent !border-0"
-                    style={{ color: "var(--muted)" }} title="Copy Device ID for Arduino">
-                    <Copy size={12} />
                   </button>
                 </div>
               </li>
@@ -375,16 +448,75 @@ export default function SettingsPage() {
           </ul>
         )}
 
-        {nodes.length === 0 && <p className="text-sm py-2" style={{ color: "var(--muted)" }}>No sensors added yet.</p>}
+        {nodes.length === 0 && (
+          <div className="rounded-xl px-4 py-5 text-center"
+            style={{ background: "rgba(92,158,42,0.04)", border: "1px dashed rgba(92,158,42,0.25)" }}>
+            <Radio size={18} className="mx-auto mb-2" style={{ color: "var(--muted)" }} />
+            <p className="text-sm font-medium">No sensors yet</p>
+            <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
+              Once your gateway is paired, sensors show up here on their own within 15 minutes of powering on.
+            </p>
+          </div>
+        )}
 
-        <div className="space-y-2 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Add a sensor</p>
-          <input value={newNodeId} onChange={(e) => setNewNodeId(e.target.value)} placeholder="Node ID (from your sketch)" />
-          <input value={newNodeName} onChange={(e) => setNewNodeName(e.target.value)} placeholder="Display name (e.g. South Field)" />
-          <button onClick={addNode} disabled={!newNodeId.trim()} className="btn-secondary w-full">
-            <Plus size={16} /> Add sensor
+        {/* Advanced: legacy device keys + manual add */}
+        <div className="pt-2 border-t" style={{ borderColor: "var(--border)" }}>
+          <button
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-semibold !min-h-0 !p-0 !bg-transparent !border-0"
+            style={{ color: "var(--muted)" }}
+          >
+            {showAdvanced ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            Advanced (manual setup)
           </button>
-          {nodeError && <p className="text-sm text-center" style={{ color: "var(--red)" }}>{nodeError}</p>}
+
+          {showAdvanced && (
+            <div className="space-y-4 mt-3">
+              <div className="space-y-1.5">
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Farm ID (legacy firmware)</p>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 rounded-xl px-3 py-2.5 text-xs break-all font-mono"
+                    style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--foreground)" }}>
+                    {farm.id}
+                  </code>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(farm.id); setCopiedFarmId(true); setTimeout(() => setCopiedFarmId(false), 1500); }}
+                    className="btn-secondary !px-3 shrink-0" aria-label="Copy Farm ID">
+                    {copiedFarmId ? <Check size={15} style={{ color: "var(--green)" }} /> : <Copy size={15} />}
+                  </button>
+                </div>
+              </div>
+
+              {nodes.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Device IDs (legacy firmware)</p>
+                  {nodes.map((n) => (
+                    <div key={n.id} className="flex items-center gap-2">
+                      <code className="flex-1 text-[10px] font-mono rounded-lg px-2 py-1.5 break-all"
+                        style={{ background: "rgba(0,0,0,0.05)", color: "var(--muted)" }}>
+                        {n.id}
+                      </code>
+                      <button onClick={() => navigator.clipboard.writeText(n.id)}
+                        className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg !min-h-0 !p-0 !bg-transparent !border-0"
+                        style={{ color: "var(--muted)" }} title="Copy Device ID">
+                        <Copy size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Add a sensor manually</p>
+                <input value={newNodeId} onChange={(e) => setNewNodeId(e.target.value)} placeholder="Node ID (from your sketch)" />
+                <input value={newNodeName} onChange={(e) => setNewNodeName(e.target.value)} placeholder="Display name (e.g. South Field)" />
+                <button onClick={addNode} disabled={!newNodeId.trim()} className="btn-secondary w-full">
+                  <Plus size={16} /> Add sensor
+                </button>
+                {nodeError && <p className="text-sm text-center" style={{ color: "var(--red)" }}>{nodeError}</p>}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -44,6 +44,33 @@ export async function POST(request: Request) {
   return NextResponse.json(data);
 }
 
+// PATCH /api/nodes — rename a sensor node
+export async function PATCH(request: Request) {
+  const user = await getUser(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id, name } = await request.json();
+  if (!id || !name?.trim()) return NextResponse.json({ error: "id and name required" }, { status: 400 });
+
+  const svc = createServiceClient();
+
+  const { data: node } = await svc.from("sensor_nodes").select("farm_id").eq("id", id).single();
+  if (!node) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const { data: farm } = await svc.from("farms").select("id").eq("id", node.farm_id).eq("user_id", user.id).single();
+  if (!farm) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { data, error } = await svc
+    .from("sensor_nodes")
+    .update({ name: name.trim() })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
+}
+
 // DELETE /api/nodes — remove a sensor node by id
 export async function DELETE(request: Request) {
   const user = await getUser(request);

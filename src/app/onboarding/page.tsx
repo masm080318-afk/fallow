@@ -4,28 +4,74 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-import { Sprout, ArrowRight, ArrowLeft, Copy, Check } from "lucide-react";
+import {
+  ArrowRight, ArrowLeft, Copy, Check, MapPin, Wifi, Plug, KeyRound, Sparkles,
+} from "lucide-react";
 
+// ─── Glass input (module-level so it keeps focus across re-renders) ─────────
+const glassInputClass =
+  "w-full rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 outline-none";
+const glassInputStyle: React.CSSProperties = {
+  background: "rgba(255,255,255,0.09)",
+  border: "1px solid rgba(255,255,255,0.14)",
+  color: "#fff",
+  minHeight: 44,
+};
+const glassInputFocus: React.CSSProperties = {
+  borderColor: "rgba(125,212,79,0.5)",
+  boxShadow: "0 0 0 3px rgba(125,212,79,0.1)",
+};
+
+function GlassInput({
+  value, onChange, placeholder, type = "text", autoFocus,
+}: {
+  value: string; onChange: (v: string) => void; placeholder?: string;
+  type?: string; autoFocus?: boolean;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      autoFocus={autoFocus}
+      className={glassInputClass}
+      style={{ ...glassInputStyle, ...(focused ? glassInputFocus : {}) }}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+    />
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [farmName, setFarmName] = useState("");
   const [phone, setPhone] = useState("");
   const [threshold, setThreshold] = useState(30);
-  const [nodeId, setNodeId] = useState("");
-  const [nodeName, setNodeName] = useState("North field");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // Location
+  const [lat, setLat] = useState<number | null>(null);
+  const [lon, setLon] = useState<number | null>(null);
+  const [locStatus, setLocStatus] = useState<"idle" | "getting" | "set" | "denied">("idle");
+  const [manualLoc, setManualLoc] = useState(false);
+  const [latText, setLatText] = useState("");
+  const [lonText, setLonText] = useState("");
+
+  // Farm creation + pairing
+  const [creating, setCreating] = useState(false);
+  const [pairCode, setPairCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return;
-      // Owns a farm
       const { data: farm } = await supabase.from("farms").select("id").eq("user_id", user.id).maybeSingle();
       if (farm) { router.replace("/dashboard"); return; }
-      // Member of a shared farm
       try {
         const { data: mem } = await supabase.from("farm_members").select("farm_id").eq("user_id", user.id).maybeSingle();
         if (mem?.farm_id) { router.replace("/dashboard"); return; }
@@ -33,72 +79,61 @@ export default function OnboardingPage() {
     });
   }, [router]);
 
-  const ingestUrl =
-    typeof window !== "undefined" ? `${window.location.origin}/api/ingest` : "/api/ingest";
+  const useMyLocation = () => {
+    if (!navigator.geolocation) { setManualLoc(true); return; }
+    setLocStatus("getting");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(Math.round(pos.coords.latitude * 10000) / 10000);
+        setLon(Math.round(pos.coords.longitude * 10000) / 10000);
+        setLocStatus("set");
+      },
+      () => { setLocStatus("denied"); setManualLoc(true); },
+      { timeout: 10000 }
+    );
+  };
 
-  const copy = () => {
-    navigator.clipboard.writeText(ingestUrl);
+  // Create the farm, fetch the pairing code, then advance to the final step.
+  const createFarmAndAdvance = async () => {
+    setCreating(true); setError(null);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setError("Not signed in."); setCreating(false); return; }
+
+    const manualLat = manualLoc && latText ? Number(latText) : null;
+    const manualLon = manualLoc && lonText ? Number(lonText) : null;
+
+    const { error: farmErr } = await supabase.from("farms").insert({
+      user_id: user.id,
+      name: farmName,
+      phone: phone || null,
+      alert_threshold: threshold,
+      latitude: lat ?? (Number.isFinite(manualLat) ? manualLat : null),
+      longitude: lon ?? (Number.isFinite(manualLon) ? manualLon : null),
+    });
+    if (farmErr) { setError(farmErr.message); setCreating(false); return; }
+
+    try {
+      const res = await fetch("/api/farm/pairing-code");
+      const json = await res.json();
+      if (res.ok && json.code) setPairCode(json.code);
+    } catch { /* code also lives in Settings — not fatal */ }
+
+    setStep(3);
+    setCreating(false);
+  };
+
+  const copyCode = () => {
+    if (!pairCode) return;
+    navigator.clipboard.writeText(pairCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
 
-  const finish = async () => {
-    setLoading(true); setError(null);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setError("Not signed in."); setLoading(false); return; }
-
-    const { data: farm, error: farmErr } = await supabase
-      .from("farms").insert({ user_id: user.id, name: farmName, phone: phone || null, alert_threshold: threshold })
-      .select("id").single();
-    if (farmErr || !farm) { setError(farmErr?.message ?? "Failed to create farm."); setLoading(false); return; }
-
-    if (nodeId.trim()) {
-      const { error: nodeErr } = await supabase.from("sensor_nodes").insert({
-        farm_id: farm.id, node_id: nodeId.trim(), name: nodeName.trim() || "Sensor 1",
-      });
-      if (nodeErr) { setError(nodeErr.message); setLoading(false); return; }
-    }
-
-    router.push("/dashboard");
-    router.refresh();
-  };
-
-  const glassInputClass = "w-full rounded-xl px-4 py-3 text-sm font-medium transition-all duration-150 outline-none";
-  const glassInputStyle = {
-    background: "rgba(255,255,255,0.09)",
-    border: "1px solid rgba(255,255,255,0.14)",
-    color: "#fff",
-    minHeight: 44,
-  };
-  const glassInputFocus = {
-    borderColor: "rgba(125,212,79,0.5)",
-    boxShadow: "0 0 0 3px rgba(125,212,79,0.1)",
-  };
-
-  const GlassInput = ({
-    value, onChange, placeholder, type = "text", autoFocus,
-  }: {
-    value: string; onChange: (v: string) => void; placeholder?: string;
-    type?: string; autoFocus?: boolean;
-  }) => {
-    const [focused, setFocused] = useState(false);
-    return (
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoFocus={autoFocus}
-        className={glassInputClass}
-        style={{ ...glassInputStyle, ...(focused ? glassInputFocus : {}), minHeight: 44 }}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-      />
-    );
-  };
+  const locationSet = locStatus === "set" || (manualLoc && latText.trim() !== "" && lonText.trim() !== "");
 
   const steps = [
+    // ── Step 0: Name ──
     {
       title: "Name your farm",
       subtitle: "This is how it'll appear in your dashboard.",
@@ -110,99 +145,161 @@ export default function OnboardingPage() {
       ),
       canNext: farmName.trim().length > 1,
     },
+
+    // ── Step 1: Location ──
     {
-      title: "SMS alert number",
-      subtitle: "Optional — we'll text when soil gets dry.",
-      body: (
-        <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-white/45">Mobile number</label>
-          <GlassInput value={phone} onChange={setPhone} placeholder="+1 555 123 4567" type="tel" />
-          <p className="text-xs text-white/35 mt-2">
-            We&apos;ll text you only when soil drops below your threshold. No spam.
-          </p>
-        </div>
-      ),
-      canNext: true,
-    },
-    {
-      title: "Alert threshold",
-      subtitle: "SMS fires when moisture drops below this level.",
+      title: "Where is your farm?",
+      subtitle: "Powers the weather-based watering forecast.",
       body: (
         <div className="space-y-4">
-          <div className="text-center py-4">
-            <span className="text-6xl font-black" style={{ color: "var(--green-bright)" }}>{threshold}</span>
-            <span className="text-xl text-white/55 ml-2">% moisture</span>
-          </div>
-          <input
-            type="range" min={10} max={70}
-            value={threshold}
-            onChange={(e) => setThreshold(Number(e.target.value))}
-            className="w-full !min-h-0 !p-0 !bg-transparent !border-0"
-          />
-          <div className="flex justify-between text-xs text-white/35">
-            <span>10% (dry)</span><span>70% (wet)</span>
-          </div>
-          <p className="text-xs text-white/40 text-center">30% is a good default for most row crops.</p>
-        </div>
-      ),
-      canNext: true,
-    },
-    {
-      title: "Connect your sensor",
-      subtitle: "Flash firmware and point it at this URL.",
-      body: (
-        <div className="space-y-4">
-          <p className="text-sm text-white/50">
-            Flash your ESP32 with the Soilify firmware and point it at:
-          </p>
-          <div className="flex items-center gap-2">
-            <code
-              className="flex-1 rounded-xl px-3 py-2.5 text-xs break-all font-mono"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}
-            >
-              {ingestUrl}
-            </code>
-            <button
-              onClick={copy}
-              className="flex items-center justify-center w-10 h-10 rounded-xl transition-all !min-h-0 !p-0 !border-0 shrink-0"
-              style={{ background: "rgba(125,212,79,0.12)", color: "var(--green-bright)" }}
-              aria-label="copy"
-            >
-              {copied ? <Check size={15} /> : <Copy size={15} />}
-            </button>
-          </div>
-          <div className="space-y-3 pt-1">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/45">Node ID (from firmware)</label>
-              <GlassInput value={nodeId} onChange={setNodeId} placeholder="e.g. ESP32-AABBCC" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/45">Sensor name</label>
-              <GlassInput value={nodeName} onChange={setNodeName} placeholder="e.g. North field" />
-            </div>
-          </div>
-        </div>
-      ),
-      canNext: true,
-    },
-    {
-      title: "You're all set!",
-      subtitle: "Readings will appear as soon as your sensor checks in.",
-      body: (
-        <div className="py-4 flex flex-col items-center gap-4 text-center">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center"
+          <button
+            onClick={useMyLocation}
+            disabled={locStatus === "getting"}
+            className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition-all !min-h-0"
             style={{
-              background: "linear-gradient(135deg, rgba(125,212,79,0.25), rgba(92,158,42,0.1))",
-              border: "1px solid rgba(125,212,79,0.3)",
-              boxShadow: "0 0 24px rgba(125,212,79,0.2)",
+              background: locationSet && !manualLoc
+                ? "rgba(125,212,79,0.15)"
+                : "linear-gradient(135deg, rgba(125,212,79,0.22), rgba(92,158,42,0.12))",
+              border: "1px solid rgba(125,212,79,0.35)",
+              color: "var(--green-bright)",
             }}
           >
-            <Sprout size={28} style={{ color: "var(--green-bright)" }} />
+            <MapPin size={16} />
+            {locStatus === "getting" ? "Finding you…" : locStatus === "set" ? "Location set" : "Use my location"}
+            {locStatus === "set" && <Check size={16} />}
+          </button>
+
+          {locStatus === "set" && (
+            <p className="text-xs text-white/40 text-center">
+              {lat}, {lon} — you can fine-tune this later in Settings.
+            </p>
+          )}
+
+          {locStatus === "denied" && (
+            <p className="text-xs text-center" style={{ color: "#ffb4a8" }}>
+              Couldn&apos;t get your location — enter it below or skip for now.
+            </p>
+          )}
+
+          {!manualLoc ? (
+            <button
+              onClick={() => setManualLoc(true)}
+              className="w-full text-xs text-white/40 underline !min-h-0 !p-0 !bg-transparent !border-0"
+            >
+              Enter coordinates manually
+            </button>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <GlassInput value={latText} onChange={setLatText} placeholder="Latitude" type="number" />
+              <GlassInput value={lonText} onChange={setLonText} placeholder="Longitude" type="number" />
+            </div>
+          )}
+
+          <p className="text-xs text-white/35 text-center">
+            Optional — but without it we can&apos;t tell you when to skip watering.
+          </p>
+        </div>
+      ),
+      canNext: true,
+    },
+
+    // ── Step 2: Alerts ──
+    {
+      title: "Dry-soil alerts",
+      subtitle: "We'll text you when your soil needs attention.",
+      body: (
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-white/45">
+              Mobile number <span className="normal-case font-normal">(optional)</span>
+            </label>
+            <GlassInput value={phone} onChange={setPhone} placeholder="+1 555 123 4567" type="tel" />
           </div>
-          <p className="text-sm text-white/55 leading-relaxed">
-            {farmName && <><strong className="text-white">{farmName}</strong> is ready.<br /></>}
-            We&apos;ll show readings the moment your sensor comes online.
+
+          <div className="space-y-3">
+            <label className="text-xs font-semibold uppercase tracking-wider text-white/45">Alert when soil drops below</label>
+            <div className="text-center py-1">
+              <span className="text-5xl font-black" style={{ color: "var(--green-bright)" }}>{threshold}</span>
+              <span className="text-lg text-white/55 ml-1.5">%</span>
+            </div>
+            <input
+              type="range" min={10} max={70}
+              value={threshold}
+              onChange={(e) => setThreshold(Number(e.target.value))}
+              className="w-full !min-h-0 !p-0 !bg-transparent !border-0"
+            />
+            <div className="flex justify-between text-xs text-white/35">
+              <span>10% (dry)</span><span>70% (wet)</span>
+            </div>
+            <p className="text-xs text-white/40 text-center">30% is a good default for most crops.</p>
+          </div>
+        </div>
+      ),
+      canNext: true,
+    },
+
+    // ── Step 3: Pair the gateway ──
+    {
+      title: "Pair your gateway",
+      subtitle: "No wires, no codes to flash — just this.",
+      body: (
+        <div className="space-y-5">
+          {/* The code */}
+          <div
+            className="rounded-2xl py-5 px-4 text-center relative"
+            style={{
+              background: "linear-gradient(135deg, rgba(125,212,79,0.16), rgba(92,158,42,0.06))",
+              border: "1px solid rgba(125,212,79,0.3)",
+              boxShadow: "0 0 32px rgba(125,212,79,0.12)",
+            }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 mb-2">Your pairing code</p>
+            <div className="flex items-center justify-center gap-3">
+              <span
+                className="text-4xl font-black tracking-[0.25em]"
+                style={{ color: "var(--green-bright)", textShadow: "0 0 24px rgba(125,212,79,0.4)" }}
+              >
+                {pairCode ?? "······"}
+              </span>
+              {pairCode && (
+                <button
+                  onClick={copyCode}
+                  className="w-9 h-9 flex items-center justify-center rounded-lg !min-h-0 !p-0 !border-0 shrink-0"
+                  style={{ background: "rgba(125,212,79,0.15)", color: "var(--green-bright)" }}
+                  aria-label="Copy code"
+                >
+                  {copied ? <Check size={15} /> : <Copy size={15} />}
+                </button>
+              )}
+            </div>
+            {!pairCode && (
+              <p className="text-xs text-white/40 mt-2">You can also find this code anytime in Settings.</p>
+            )}
+          </div>
+
+          {/* Steps */}
+          <div className="space-y-2.5">
+            {[
+              { icon: Plug, text: "Plug in your Soilify gateway near your WiFi router" },
+              { icon: Wifi, text: "On your phone, join the WiFi network “Soilify-Setup”" },
+              { icon: KeyRound, text: "Pick your home WiFi and type this code on the page that opens" },
+            ].map(({ icon: Icon, text }, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-xl px-3.5 py-3"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(125,212,79,0.12)" }}>
+                  <Icon size={14} style={{ color: "var(--green-bright)" }} />
+                </div>
+                <p className="text-xs text-white/65 leading-snug">
+                  <span className="font-bold text-white/90 mr-1">{i + 1}.</span>{text}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-white/40 text-center flex items-center justify-center gap-1.5">
+            <Sparkles size={12} style={{ color: "var(--green-bright)" }} />
+            Sensors appear on your dashboard automatically — nothing to type.
           </p>
         </div>
       ),
@@ -211,7 +308,8 @@ export default function OnboardingPage() {
   ];
 
   const current = steps[step];
-  const isLast = step === steps.length - 1;
+  const isPairStep = step === 3;
+  const isAlertStep = step === 2;
 
   return (
     <main className="min-h-screen relative flex flex-col items-center justify-center px-6 py-10 overflow-hidden">
@@ -243,11 +341,7 @@ export default function OnboardingPage() {
             <div
               key={i}
               className="h-1 flex-1 rounded-full transition-all duration-300"
-              style={{
-                background: i <= step
-                  ? "var(--green-bright)"
-                  : "rgba(255,255,255,0.12)",
-              }}
+              style={{ background: i <= step ? "var(--green-bright)" : "rgba(255,255,255,0.12)" }}
             />
           ))}
         </div>
@@ -281,23 +375,37 @@ export default function OnboardingPage() {
           )}
 
           <div className="flex justify-between items-center mt-7 gap-3">
-            <button
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={step === 0}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-30 !min-h-0"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.6)",
-              }}
-            >
-              <ArrowLeft size={15} /> Back
-            </button>
-
-            {isLast ? (
+            {!isPairStep && (
               <button
-                onClick={finish}
-                disabled={loading}
+                onClick={() => setStep((s) => Math.max(0, s - 1))}
+                disabled={step === 0 || creating}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 disabled:opacity-30 !min-h-0"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "rgba(255,255,255,0.6)",
+                }}
+              >
+                <ArrowLeft size={15} /> Back
+              </button>
+            )}
+
+            {isPairStep ? (
+              <button
+                onClick={() => { router.push("/dashboard"); router.refresh(); }}
+                className="flex items-center gap-2 flex-1 justify-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 !min-h-0"
+                style={{
+                  background: "linear-gradient(135deg, #5c9e2a, #4a8020)",
+                  color: "#fff",
+                  boxShadow: "0 4px 16px rgba(92,158,42,0.35)",
+                }}
+              >
+                Go to dashboard <ArrowRight size={15} />
+              </button>
+            ) : isAlertStep ? (
+              <button
+                onClick={createFarmAndAdvance}
+                disabled={creating}
                 className="flex items-center gap-2 flex-1 justify-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 disabled:opacity-50 !min-h-0"
                 style={{
                   background: "linear-gradient(135deg, #5c9e2a, #4a8020)",
@@ -305,7 +413,7 @@ export default function OnboardingPage() {
                   boxShadow: "0 4px 16px rgba(92,158,42,0.35)",
                 }}
               >
-                {loading ? "Saving…" : "Go to dashboard"} {!loading && <ArrowRight size={15} />}
+                {creating ? "Creating your farm…" : "Create my farm"} {!creating && <ArrowRight size={15} />}
               </button>
             ) : (
               <button

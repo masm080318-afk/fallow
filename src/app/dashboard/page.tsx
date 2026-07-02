@@ -4,6 +4,7 @@ import AIDiagnosisCard from "@/components/dashboard/AIDiagnosisCard";
 import IrrigationPrediction from "@/components/dashboard/IrrigationPrediction";
 import PWAPrompt from "@/components/PWAPrompt";
 import ETCard from "@/components/dashboard/ETCard";
+import WaterHero from "@/components/dashboard/WaterHero";
 import type { Reading, SensorNode, Diagnosis, Farm } from "@/types";
 import { redirect } from "next/navigation";
 
@@ -56,7 +57,8 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
 
   return (
-    <main className="px-4 sm:px-6 py-5 max-w-2xl mx-auto space-y-4">
+    <main className="px-4 sm:px-6 py-5 max-w-2xl mx-auto space-y-4 stagger">
+      <WaterHero />
       <FarmStatusCard
         initialReading={latestReading as Reading | null}
         node={primaryNode}

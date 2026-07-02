@@ -15,6 +15,7 @@ export interface Farm {
   instant_reading_requested: boolean;
   invite_token: string | null;
   frost_alerts_enabled: boolean;
+  pairing_code: string | null;
 }
 
 export interface SensorNode {
