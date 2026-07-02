@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, CircleHelp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -47,6 +47,14 @@ export default function Header({ farmName }: { farmName?: string }) {
       </Link>
 
       <div className="flex items-center gap-0.5 shrink-0">
+        <Link
+          href="/dashboard/help"
+          aria-label="Help"
+          className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-150 hover:bg-black/5"
+          style={{ color: "var(--muted)" }}
+        >
+          <CircleHelp size={17} />
+        </Link>
         <Link
           href="/dashboard/settings"
           aria-label="Settings"

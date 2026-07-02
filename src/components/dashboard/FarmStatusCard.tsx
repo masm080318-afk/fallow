@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import MoistureGauge from "./MoistureGauge";
+import CardHeader from "./CardHeader";
 import { createClient } from "@/lib/supabase/client";
-import { Thermometer, Radio, WifiOff, MapPin, Zap } from "lucide-react";
+import { Thermometer, Radio, WifiOff, MapPin, Zap, Gauge } from "lucide-react";
 import type { Reading, SensorNode } from "@/types";
 
 interface Props {
@@ -118,20 +119,17 @@ export default function FarmStatusCard({ initialReading, node, farmId, farmLat, 
 
   return (
     <div className={`card ${glowClass} animate-fade-up`}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted font-semibold">
-            {node?.name ?? "Farm Status"}
-          </p>
-          <p className="text-xs text-muted mt-0.5">
-            {reading ? `Updated ${timeAgo(reading.created_at, now)}` : "Waiting for sensor…"}
-          </p>
-        </div>
-        <span className={`flex items-center gap-1.5 text-xs font-semibold ${online ? "text-green" : "text-muted"}`}>
-          {online ? <><span className="dot-online" /> Live</> : <><WifiOff size={12} /> Offline</>}
-        </span>
-      </div>
+      <CardHeader
+        icon={Gauge}
+        title={node?.name ?? "Soil right now"}
+        sub={reading ? `Updated ${timeAgo(reading.created_at, now)}` : "Waiting for your first reading…"}
+        right={
+          <span className={`chip ${online ? "" : ""}`}
+            style={online ? undefined : { background: "rgba(122,146,120,0.12)", color: "var(--muted)" }}>
+            {online ? <><span className="dot-online" /> Live</> : <><WifiOff size={11} /> Offline</>}
+          </span>
+        }
+      />
 
       {/* Gauge */}
       <div className="flex justify-center py-2">
@@ -155,7 +153,7 @@ export default function FarmStatusCard({ initialReading, node, farmId, farmLat, 
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 mt-4">
-        <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
+        <div className="tile p-3.5">
           <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
             <Thermometer size={12} /> Outdoor temp
           </div>
@@ -179,7 +177,7 @@ export default function FarmStatusCard({ initialReading, node, farmId, farmLat, 
             </div>
           )}
         </div>
-        <div className="rounded-xl p-3.5" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
+        <div className="tile p-3.5">
           <div className="flex items-center gap-1.5 text-muted text-xs mb-1.5 font-medium">
             <Radio size={12} /> Sensor
           </div>

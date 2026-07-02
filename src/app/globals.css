@@ -40,6 +40,15 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Soft ambient depth behind the whole app */
+body {
+  background:
+    radial-gradient(1100px 500px at 90% -120px, rgba(125,212,79,0.09), transparent 60%),
+    radial-gradient(800px 460px at -140px 35%, rgba(92,158,42,0.06), transparent 55%),
+    var(--background);
+  background-attachment: fixed;
+}
+
 * { border-color: var(--border); }
 
 /* ── Animations ── */
@@ -75,10 +84,119 @@ html, body {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.125rem;
   padding: 1.25rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.03);
-  transition: border-color 0.25s, box-shadow 0.25s;
+  box-shadow: 0 1px 3px rgba(28,44,26,0.05), 0 6px 22px rgba(28,44,26,0.04);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+}
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(28,44,26,0.06), 0 14px 34px rgba(28,44,26,0.07);
+    border-color: rgba(92,158,42,0.28);
+  }
+}
+
+/* ── Card anatomy (shared across every dashboard card) ── */
+.icon-chip {
+  width: 2rem; height: 2rem;
+  border-radius: 0.625rem;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(92,158,42,0.1);
+  color: var(--green);
+  flex-shrink: 0;
+}
+.card-title { font-weight: 700; font-size: 0.875rem; letter-spacing: -0.01em; }
+.card-sub   { font-size: 0.75rem; color: var(--muted); }
+.section-label {
+  font-size: 0.6875rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+/* Inner stat tile — replaces ad-hoc rgba() boxes */
+.tile {
+  background: rgba(92,158,42,0.05);
+  border: 1px solid rgba(92,158,42,0.12);
+  border-radius: 0.75rem;
+}
+
+/* Small pill badge */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.6875rem; font-weight: 600;
+  padding: 0.2rem 0.6rem; border-radius: 9999px;
+  background: rgba(92,158,42,0.1); color: var(--green);
+}
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, rgba(92,158,42,0.06) 25%, rgba(92,158,42,0.12) 50%, rgba(92,158,42,0.06) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 0.75rem;
+}
+
+/* ── Welcome tour ── */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.92) translateY(14px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes ringPulse {
+  0%   { transform: scale(1);   opacity: 0.45; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+.tour-backdrop { animation: fadeIn 0.3s ease both; }
+.tour-card     { animation: popIn 0.4s cubic-bezier(.34,1.4,.64,1) both; }
+.tour-ring {
+  position: absolute; inset: 0; border-radius: 9999px;
+  border: 2px solid rgba(92,158,42,0.5);
+  animation: ringPulse 2s ease-out infinite;
+}
+.tour-ring:nth-child(2) { animation-delay: 1s; }
+
+/* ── FAQ accordion ── */
+details.faq {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+details.faq[open] { border-color: rgba(92,158,42,0.3); }
+details.faq summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem; font-weight: 600;
+  min-height: 44px;
+}
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq summary::after {
+  content: "+";
+  font-size: 1.1rem; font-weight: 500; color: var(--muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+details.faq[open] summary::after { transform: rotate(45deg); color: var(--green); }
+details.faq .faq-body {
+  padding: 0 1rem 0.95rem;
+  font-size: 0.8125rem; line-height: 1.6; color: var(--muted);
+  animation: fadeUp 0.3s ease both;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .card-glow-green  { box-shadow: var(--glow-green);  border-color: rgba(92,158,42,0.3); }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { RefreshCw, ChevronDown, ChevronUp, Leaf, Droplets, CircleCheck, Hourglass } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import CardHeader from "./CardHeader";
 
 interface ETReading {
   et0_mm: number;
@@ -62,42 +63,44 @@ export default function ETCard() {
   const isWater = data?.recommend === "water";
   const isSkip = data?.recommend === "skip";
 
-  const accentColor = isWater ? "var(--red, #c0392b)" : isSkip ? "var(--green)" : "var(--muted)";
+  const accentColor = isWater ? "var(--red)" : isSkip ? "var(--green)" : "var(--muted)";
   const bgColor = isWater ? "rgba(192,57,43,0.06)" : isSkip ? "rgba(92,158,42,0.06)" : "rgba(92,158,42,0.03)";
   const borderColor = isWater ? "rgba(192,57,43,0.2)" : isSkip ? "rgba(92,158,42,0.2)" : "var(--border)";
 
+  const HeadIcon = isWater ? Droplets : isSkip ? CircleCheck : Hourglass;
   const headline = isWater
     ? `Water today${data?.recommend_mm ? ` — ${data.recommend_mm} mm` : ""}`
     : isSkip
     ? "No watering needed"
-    : "Calculating…";
-
-  const emoji = isWater ? "💧" : isSkip ? "✓" : "⏳";
+    : "Waiting for a sensor reading";
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <h3 className="font-semibold text-sm">Today's Watering Forecast</h3>
-          <p className="text-xs" style={{ color: "var(--muted)" }}>
-            Updates automatically when sensor reads
-          </p>
-        </div>
-        <button
-          onClick={load}
-          className="!min-h-0 p-1.5 rounded-lg hover:bg-[rgba(92,158,42,0.08)] transition-colors"
-          disabled={loading}
-        >
-          <RefreshCw size={13} className={loading ? "animate-spin" : ""} style={{ color: "var(--muted)" }} />
-        </button>
-      </div>
+      <CardHeader
+        icon={Leaf}
+        title="Today's watering forecast"
+        sub="Updates automatically with each reading"
+        right={
+          <button
+            onClick={load}
+            className="!min-h-0 p-1.5 rounded-lg hover:bg-[rgba(92,158,42,0.08)] transition-colors"
+            disabled={loading}
+            aria-label="Refresh forecast"
+          >
+            <RefreshCw size={13} className={loading ? "animate-spin" : ""} style={{ color: "var(--muted)" }} />
+          </button>
+        }
+      />
 
       {loading && !data ? (
-        <div className="py-8 text-center text-sm" style={{ color: "var(--muted)" }}>
-          Checking weather &amp; soil…
+        <div className="space-y-3">
+          <div className="skeleton h-16 w-full" />
+          <div className="grid grid-cols-3 gap-2">
+            <div className="skeleton h-16" /><div className="skeleton h-16" /><div className="skeleton h-16" />
+          </div>
         </div>
       ) : error ? (
-        <div className="rounded-xl p-4 text-sm" style={{ background: "rgba(192,57,43,0.06)", color: "var(--red, #c0392b)" }}>
+        <div className="rounded-xl p-4 text-sm" style={{ background: "rgba(192,57,43,0.06)", color: "var(--red)" }}>
           {error}
           {error.includes("location") && (
             <a href="/dashboard/settings" className="block mt-2 underline font-medium">
@@ -109,8 +112,9 @@ export default function ETCard() {
         <>
           {/* Main answer */}
           <div className="rounded-xl p-4 mb-3" style={{ background: bgColor, border: `1px solid ${borderColor}` }}>
-            <div className="text-lg font-bold mb-1" style={{ color: accentColor }}>
-              {emoji} {headline}
+            <div className="flex items-center gap-2 text-base font-bold mb-1" style={{ color: accentColor }}>
+              <HeadIcon size={18} className="shrink-0" />
+              {headline}
             </div>
             <p className="text-sm" style={{ color: "var(--muted)" }}>{data.recommend_reason}</p>
           </div>
@@ -122,7 +126,7 @@ export default function ETCard() {
               { value: `${data.precipitation_mm} mm`, label: "Rain today" },
               { value: `${Math.round(data.humidity_pct)}%`, label: "Humidity" },
             ].map(({ value, label }) => (
-              <div key={label} className="rounded-lg p-2.5 text-center" style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)" }}>
+              <div key={label} className="tile p-2.5 text-center">
                 <div className="text-base font-bold" style={{ color: "var(--green)" }}>{value}</div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>{label}</div>
               </div>
@@ -130,7 +134,7 @@ export default function ETCard() {
           </div>
 
           {/* Plain-language explanation */}
-          <div className="rounded-lg p-3 mb-2 text-xs" style={{ background: "rgba(92,158,42,0.04)", border: "1px solid rgba(92,158,42,0.1)", color: "var(--muted)" }}>
+          <div className="tile p-3 mb-2 text-xs" style={{ color: "var(--muted)" }}>
             <strong style={{ color: "var(--foreground)" }}>How this works: </strong>
             We look at today&apos;s weather ({data.temp_min_c}–{data.temp_max_c}°C, {Math.round(data.humidity_pct)}% humidity,{" "}
             {data.wind_speed_ms} m/s wind) to estimate how much water your crop is losing through evaporation.
@@ -148,14 +152,15 @@ export default function ETCard() {
           </button>
 
           {showDetails && (
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-2 space-y-1.5 animate-fade-in">
               {[
                 ["Reference ET (ET₀)", `${data.et0_mm} mm`, "How much a grass reference crop would evaporate today"],
                 ["Crop factor (Kc)", `${data.kc}`, "Multiplier that adjusts for your specific crop"],
                 ["Crop water need (ETc)", `${data.etc_mm} mm`, "ET₀ × Kc = actual water your crop needs"],
                 ["Solar radiation", `${data.solar_radiation} MJ/m²`, "Sunlight — the main driver of evaporation"],
               ].map(([label, value, desc]) => (
-                <div key={label} className="flex items-start justify-between gap-2 text-xs p-2 rounded-lg" style={{ background: "rgba(92,158,42,0.03)", border: "1px solid rgba(92,158,42,0.08)" }}>
+                <div key={label} className="flex items-start justify-between gap-2 text-xs p-2 rounded-lg"
+                  style={{ background: "rgba(92,158,42,0.03)", border: "1px solid rgba(92,158,42,0.08)" }}>
                   <div>
                     <span className="font-medium">{label}</span>
                     <span className="block" style={{ color: "var(--muted)" }}>{desc}</span>

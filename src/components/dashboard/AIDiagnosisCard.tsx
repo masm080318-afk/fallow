@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2, Camera, Radio } from "lucide-react";
 import type { Diagnosis } from "@/types";
+import CardHeader from "./CardHeader";
 
 const statusConfig = {
   Healthy:      { icon: CheckCircle2,  color: "text-green",  bg: "rgba(92,158,42,0.08)",   border: "rgba(92,158,42,0.2)" },
@@ -83,18 +84,19 @@ export default function AIDiagnosisCard({
 
   return (
     <div className="card">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2 text-muted text-xs uppercase tracking-wider font-semibold">
-          <Sparkles size={13} className="text-green" /> AI Diagnosis
-        </div>
-        {diagnosis && cfg && (
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}
-            style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
-            {diagnosis.confidence} confidence
-          </span>
-        )}
-      </div>
+      <CardHeader
+        icon={Sparkles}
+        title="Plant health"
+        sub="AI analysis of soil trends & photos"
+        right={
+          diagnosis && cfg ? (
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}
+              style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+              {diagnosis.confidence} confidence
+            </span>
+          ) : undefined
+        }
+      />
 
       {/* Result */}
       {diagnosis && Icon && cfg ? (
