@@ -20,7 +20,7 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hey! I'm Soilify AI 🌱\n\nI can help with irrigation timing, plant health, soil questions, and more.\n\nYou can also send me a photo of your plants or soil and I'll analyze what I see.",
+      content: "Hi — I'm Soilify AI.\n\nI can help with irrigation timing, plant health, soil questions, and more.\n\nYou can also send me a photo of your plants or soil and I'll analyze what I see.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -94,25 +94,15 @@ export default function AssistantPage() {
       style={{ height: "calc(100dvh - 118px)" }}
     >
       {/* Header */}
-      <div
-        className="px-4 py-4 flex items-center gap-3 border-b border-[var(--border)]"
-        style={{ background: "linear-gradient(180deg, rgba(34,197,94,0.04) 0%, transparent 100%)" }}
-      >
-        <div
-          className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-          style={{
-            background: "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))",
-            border: "1px solid rgba(34,197,94,0.25)",
-            boxShadow: "0 0 16px rgba(34,197,94,0.15)",
-          }}
-        >
-          <Sprout size={18} className="text-green" />
+      <div className="px-4 py-4 flex items-center gap-3" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div className="icon-chip" style={{ width: 40, height: 40 }}>
+          <Sprout size={18} />
         </div>
         <div>
-          <div className="font-bold text-sm text-gradient">Soilify AI</div>
-          <div className="text-xs text-muted">Plant health · Soil advice · Irrigation</div>
+          <div className="card-title">Soilify AI</div>
+          <div className="text-xs" style={{ color: "var(--ink-soft)" }}>Plant health · Soil advice · Irrigation</div>
         </div>
-        <div className="ml-auto flex items-center gap-1.5 text-xs text-green font-medium">
+        <div className="ml-auto flex items-center gap-2 text-xs font-medium" style={{ color: "var(--accent)" }}>
           <span className="dot-online" style={{ width: 6, height: 6 }} />
           Online
         </div>
@@ -127,14 +117,8 @@ export default function AssistantPage() {
             style={{ animationDelay: `${i * 0.03}s` }}
           >
             {m.role === "assistant" && (
-              <div
-                className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-1"
-                style={{
-                  background: "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))",
-                  border: "1px solid rgba(34,197,94,0.2)",
-                }}
-              >
-                <Sprout size={13} className="text-green" />
+              <div className="icon-chip mt-1" style={{ width: 28, height: 28 }}>
+                <Sprout size={13} />
               </div>
             )}
             <div
@@ -142,17 +126,15 @@ export default function AssistantPage() {
               style={
                 m.role === "user"
                   ? {
-                      background: "linear-gradient(135deg, #22c55e, #16a34a)",
-                      color: "#052e16",
+                      background: "var(--accent)",
+                      color: "#fff",
                       borderBottomRightRadius: 4,
                       fontWeight: 500,
-                      boxShadow: "0 4px 16px rgba(34,197,94,0.2)",
                     }
                   : {
-                      background: "rgba(92,158,42,0.08)",
-                      border: "1px solid rgba(92,158,42,0.15)",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
                       borderBottomLeftRadius: 4,
-                      boxShadow: "0 2px 8px rgba(92,158,42,0.06)",
                     }
               }
             >
@@ -161,7 +143,7 @@ export default function AssistantPage() {
                   src={m.image}
                   alt="Uploaded"
                   className="rounded-xl mb-2 max-h-52 w-auto"
-                  style={{ border: "1px solid rgba(92,158,42,0.2)" }}
+                  style={{ border: "1px solid rgba(255,255,255,0.3)" }}
                 />
               )}
               <p className="whitespace-pre-wrap">{m.content}</p>
@@ -172,24 +154,14 @@ export default function AssistantPage() {
         {/* Typing indicator */}
         {loading && (
           <div className="flex gap-2.5 justify-start animate-fade-in">
-            <div
-              className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
-              style={{
-                background: "linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.05))",
-                border: "1px solid rgba(34,197,94,0.2)",
-              }}
-            >
-              <Sprout size={13} className="text-green" />
+            <div className="icon-chip" style={{ width: 28, height: 28 }}>
+              <Sprout size={13} />
             </div>
             <div
               className="px-4 py-3 rounded-2xl"
-              style={{
-                background: "rgba(92,158,42,0.08)",
-                border: "1px solid rgba(92,158,42,0.15)",
-                borderBottomLeftRadius: 4,
-              }}
+              style={{ background: "var(--surface)", border: "1px solid var(--border)", borderBottomLeftRadius: 4 }}
             >
-              <Loader2 size={15} className="animate-spin text-green" />
+              <Loader2 size={15} className="animate-spin" style={{ color: "var(--accent)" }} />
             </div>
           </div>
         )}
@@ -201,20 +173,8 @@ export default function AssistantPage() {
               <button
                 key={s}
                 onClick={() => send(s)}
-                className="text-xs px-3 py-2 rounded-full transition-all duration-200 !min-h-0 font-medium"
-                style={{
-                  border: "1px solid rgba(34,197,94,0.25)",
-                  color: "var(--green)",
-                  background: "rgba(34,197,94,0.05)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(34,197,94,0.12)";
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 12px rgba(34,197,94,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(34,197,94,0.05)";
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
-                }}
+                className="text-xs px-3 py-2 rounded-full transition-colors !min-h-0 font-medium"
+                style={{ border: "1px solid var(--border-strong)", color: "var(--accent)", background: "var(--surface)" }}
               >
                 {s}
               </button>
@@ -233,12 +193,12 @@ export default function AssistantPage() {
               src={image.preview}
               alt="Preview"
               className="h-16 rounded-xl"
-              style={{ border: "1px solid rgba(34,197,94,0.3)", boxShadow: "0 0 12px rgba(34,197,94,0.15)" }}
+              style={{ border: "1px solid var(--border-strong)" }}
             />
             <button
               onClick={() => setImage(null)}
               className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center !min-h-0 !p-0"
-              style={{ background: "var(--red)", border: "1.5px solid var(--background)" }}
+              style={{ background: "var(--data-dry)", border: "1.5px solid var(--paper)" }}
             >
               <X size={10} className="text-white" />
             </button>
@@ -250,15 +210,12 @@ export default function AssistantPage() {
       <div className="px-4 pb-4 pt-2">
         <div
           className="flex items-end gap-2 rounded-2xl px-3 py-2.5"
-          style={{
-            background: "rgba(92,158,42,0.05)",
-            border: "1px solid rgba(92,158,42,0.15)",
-            boxShadow: "0 2px 8px rgba(92,158,42,0.04)",
-          }}
+          style={{ background: "var(--surface)", border: "1px solid var(--border-strong)" }}
         >
           <button
             onClick={() => fileRef.current?.click()}
-            className="text-muted hover:text-green transition-all duration-200 !min-h-0 !p-1.5 !bg-transparent !border-0 shrink-0 hover:scale-110"
+            className="transition-colors !min-h-0 !p-1.5 !bg-transparent !border-0 shrink-0"
+            style={{ color: "var(--ink-soft)" }}
             title="Upload photo for analysis"
           >
             <ImagePlus size={19} />
@@ -285,17 +242,14 @@ export default function AssistantPage() {
           <button
             onClick={() => send()}
             disabled={loading || (!input.trim() && !image)}
-            className="shrink-0 !min-h-0 !p-2 !border-0 rounded-xl transition-all duration-200 disabled:opacity-30"
-            style={{
-              background: "linear-gradient(135deg, #22c55e, #16a34a)",
-              boxShadow: loading || (!input.trim() && !image) ? "none" : "0 0 12px rgba(34,197,94,0.4)",
-            }}
+            className="shrink-0 !min-h-0 !p-2 !border-0 rounded-xl transition-opacity disabled:opacity-30"
+            style={{ background: "var(--accent)" }}
           >
-            <Send size={15} className="text-[#052e16]" />
+            <Send size={15} className="text-white" />
           </button>
         </div>
-        <p className="text-center text-xs text-muted mt-2" style={{ fontSize: 10 }}>
-          Tap <ImagePlus size={9} className="inline" /> to send a plant photo for health analysis
+        <p className="text-xs mt-2" style={{ color: "var(--ink-soft)", fontSize: 10 }}>
+          Tap the image icon to send a plant photo for health analysis
         </p>
       </div>
     </main>

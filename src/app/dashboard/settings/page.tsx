@@ -168,7 +168,7 @@ export default function SettingsPage() {
       {/* Farm info */}
       <div className="card space-y-5">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
             <Settings2 size={15} style={{ color: "var(--green)" }} />
           </div>
           <h2 className="font-bold text-sm">Farm settings</h2>
@@ -187,7 +187,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Alert threshold</label>
-            <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "rgba(92,158,42,0.1)", color: "var(--green)" }}>
+            <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "rgba(46,107,31,0.1)", color: "var(--green)" }}>
               {farm.alert_threshold}%
             </span>
           </div>
@@ -202,7 +202,7 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Min hours between alerts</label>
-            <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "rgba(92,158,42,0.1)", color: "var(--green)" }}>
+            <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: "rgba(46,107,31,0.1)", color: "var(--green)" }}>
               {farm.alert_frequency_hours}h
             </span>
           </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
         {/* ET / Location */}
         <div className="pt-1 border-t" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-2 mb-4 mt-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
               <Cpu size={14} style={{ color: "var(--green)" }} />
             </div>
             <p className="font-bold text-sm">ET irrigation settings</p>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors !min-h-0"
-                  style={{ background: "rgba(92,158,42,0.07)", border: "1px solid rgba(92,158,42,0.15)", color: "var(--green)" }}
+                  style={{ background: "rgba(46,107,31,0.07)", border: "1px solid rgba(46,107,31,0.15)", color: "var(--green)" }}
                   onClick={() => {
                     if (!navigator.geolocation) return;
                     navigator.geolocation.getCurrentPosition((pos) => {
@@ -297,7 +297,7 @@ export default function SettingsPage() {
           <p className="text-sm text-center rounded-xl py-2 px-3"
             style={{
               color: savedMsg.startsWith("Saved") ? "var(--green)" : "var(--red)",
-              background: savedMsg.startsWith("Saved") ? "rgba(92,158,42,0.06)" : "rgba(192,57,43,0.06)",
+              background: savedMsg.startsWith("Saved") ? "rgba(46,107,31,0.06)" : "rgba(192,57,43,0.06)",
             }}>
             {savedMsg}
           </p>
@@ -307,7 +307,7 @@ export default function SettingsPage() {
       {/* Gateway pairing */}
       <div className="card space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
             <Wifi size={14} style={{ color: "var(--green)" }} />
           </div>
           <div>
@@ -319,8 +319,8 @@ export default function SettingsPage() {
         <div
           className="rounded-2xl py-5 px-4 text-center"
           style={{
-            background: "linear-gradient(135deg, rgba(92,158,42,0.08), rgba(92,158,42,0.03))",
-            border: "1px solid rgba(92,158,42,0.2)",
+            background: "var(--accent-wash)",
+            border: "1px solid var(--border)",
           }}
         >
           <div className="flex items-center justify-center gap-3">
@@ -345,7 +345,7 @@ export default function SettingsPage() {
       {/* Share farm */}
       <div className="card space-y-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
             <Share2 size={14} style={{ color: "var(--green)" }} />
           </div>
           <div>
@@ -363,7 +363,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <code className="flex-1 rounded-xl px-3 py-2.5 text-xs break-all font-mono"
-                style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--foreground)" }}>
+                style={{ background: "rgba(46,107,31,0.05)", border: "1px solid rgba(46,107,31,0.12)", color: "var(--foreground)" }}>
                 {shareLink}
               </code>
               <button onClick={copyShare} className="btn-secondary !px-3 shrink-0" aria-label="Copy share link">
@@ -383,13 +383,13 @@ export default function SettingsPage() {
       {/* Sensors */}
       <div className="card space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(92,158,42,0.1)" }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
             <Radio size={14} style={{ color: "var(--green)" }} />
           </div>
           <h2 className="font-bold text-sm">Sensors</h2>
           {nodes.length > 0 && (
             <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(92,158,42,0.1)", color: "var(--green)" }}>
+              style={{ background: "rgba(46,107,31,0.1)", color: "var(--green)" }}>
               {nodes.length} active
             </span>
           )}
@@ -399,7 +399,7 @@ export default function SettingsPage() {
           <ul className="space-y-2">
             {nodes.map((n) => (
               <li key={n.id} className="rounded-xl px-4 py-3 space-y-2"
-                style={{ background: "rgba(92,158,42,0.04)", border: "1px solid rgba(92,158,42,0.1)" }}>
+                style={{ background: "rgba(46,107,31,0.04)", border: "1px solid rgba(46,107,31,0.1)" }}>
                 <div className="flex items-center justify-between gap-2">
                   {editingId === n.id ? (
                     <div className="flex items-center gap-2 flex-1">
@@ -413,7 +413,7 @@ export default function SettingsPage() {
                       />
                       <button onClick={() => renameNode(n.id)}
                         className="w-9 h-9 flex items-center justify-center rounded-lg !min-h-0 !p-0 !border-0 shrink-0"
-                        style={{ background: "rgba(92,158,42,0.12)", color: "var(--green)" }} aria-label="Save name">
+                        style={{ background: "rgba(46,107,31,0.12)", color: "var(--green)" }} aria-label="Save name">
                         <Check size={15} />
                       </button>
                     </div>
@@ -450,7 +450,7 @@ export default function SettingsPage() {
 
         {nodes.length === 0 && (
           <div className="rounded-xl px-4 py-5 text-center"
-            style={{ background: "rgba(92,158,42,0.04)", border: "1px dashed rgba(92,158,42,0.25)" }}>
+            style={{ background: "rgba(46,107,31,0.04)", border: "1px dashed rgba(46,107,31,0.25)" }}>
             <Radio size={18} className="mx-auto mb-2" style={{ color: "var(--muted)" }} />
             <p className="text-sm font-medium">No sensors yet</p>
             <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
@@ -476,7 +476,7 @@ export default function SettingsPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>Farm ID (legacy firmware)</p>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 rounded-xl px-3 py-2.5 text-xs break-all font-mono"
-                    style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--foreground)" }}>
+                    style={{ background: "rgba(46,107,31,0.05)", border: "1px solid rgba(46,107,31,0.12)", color: "var(--foreground)" }}>
                     {farm.id}
                   </code>
                   <button

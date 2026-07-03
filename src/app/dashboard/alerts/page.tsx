@@ -84,7 +84,7 @@ export default function AlertsPage() {
           <div className="flex items-center gap-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: farm?.alerts_enabled ? "rgba(92,158,42,0.1)" : "rgba(0,0,0,0.04)" }}
+              style={{ background: farm?.alerts_enabled ? "rgba(46,107,31,0.1)" : "rgba(0,0,0,0.04)" }}
             >
               {farm?.alerts_enabled
                 ? <Bell size={17} style={{ color: "var(--green)" }} />
@@ -119,8 +119,8 @@ export default function AlertsPage() {
         <div
           className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium"
           style={{
-            background: "rgba(92,158,42,0.05)",
-            border: "1px solid rgba(92,158,42,0.12)",
+            background: "rgba(46,107,31,0.05)",
+            border: "1px solid rgba(46,107,31,0.12)",
             color: "var(--muted)",
           }}
         >
@@ -146,8 +146,8 @@ export default function AlertsPage() {
           <p className="text-sm text-center rounded-xl py-2.5 px-3"
             style={{
               color: testMsg.ok ? "var(--green)" : "var(--red)",
-              background: testMsg.ok ? "rgba(92,158,42,0.06)" : "rgba(192,57,43,0.06)",
-              border: `1px solid ${testMsg.ok ? "rgba(92,158,42,0.2)" : "rgba(192,57,43,0.2)"}`,
+              background: testMsg.ok ? "rgba(46,107,31,0.06)" : "rgba(192,57,43,0.06)",
+              border: `1px solid ${testMsg.ok ? "rgba(46,107,31,0.2)" : "rgba(192,57,43,0.2)"}`,
             }}>
             {testMsg.text}
           </p>
@@ -193,7 +193,7 @@ export default function AlertsPage() {
           <div className="py-10 text-center">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-              style={{ background: "rgba(92,158,42,0.07)" }}
+              style={{ background: "rgba(46,107,31,0.07)" }}
             >
               <Bell size={20} style={{ color: "var(--green)" }} />
             </div>

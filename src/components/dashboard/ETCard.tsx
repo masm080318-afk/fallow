@@ -64,8 +64,8 @@ export default function ETCard() {
   const isSkip = data?.recommend === "skip";
 
   const accentColor = isWater ? "var(--red)" : isSkip ? "var(--green)" : "var(--muted)";
-  const bgColor = isWater ? "rgba(192,57,43,0.06)" : isSkip ? "rgba(92,158,42,0.06)" : "rgba(92,158,42,0.03)";
-  const borderColor = isWater ? "rgba(192,57,43,0.2)" : isSkip ? "rgba(92,158,42,0.2)" : "var(--border)";
+  const bgColor = isWater ? "rgba(192,57,43,0.06)" : isSkip ? "rgba(46,107,31,0.06)" : "rgba(46,107,31,0.03)";
+  const borderColor = isWater ? "rgba(192,57,43,0.2)" : isSkip ? "rgba(46,107,31,0.2)" : "var(--border)";
 
   const HeadIcon = isWater ? Droplets : isSkip ? CircleCheck : Hourglass;
   const headline = isWater
@@ -83,7 +83,7 @@ export default function ETCard() {
         right={
           <button
             onClick={load}
-            className="!min-h-0 p-1.5 rounded-lg hover:bg-[rgba(92,158,42,0.08)] transition-colors"
+            className="!min-h-0 p-1.5 rounded-lg hover:bg-[rgba(46,107,31,0.08)] transition-colors"
             disabled={loading}
             aria-label="Refresh forecast"
           >
@@ -160,7 +160,7 @@ export default function ETCard() {
                 ["Solar radiation", `${data.solar_radiation} MJ/m²`, "Sunlight — the main driver of evaporation"],
               ].map(([label, value, desc]) => (
                 <div key={label} className="flex items-start justify-between gap-2 text-xs p-2 rounded-lg"
-                  style={{ background: "rgba(92,158,42,0.03)", border: "1px solid rgba(92,158,42,0.08)" }}>
+                  style={{ background: "rgba(46,107,31,0.03)", border: "1px solid rgba(46,107,31,0.08)" }}>
                   <div>
                     <span className="font-medium">{label}</span>
                     <span className="block" style={{ color: "var(--muted)" }}>{desc}</span>

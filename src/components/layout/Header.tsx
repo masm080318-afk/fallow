@@ -18,13 +18,10 @@ export default function Header({ farmName }: { farmName?: string }) {
 
   return (
     <header
-      className="sticky top-0 z-30 px-5 py-3 flex items-center justify-between"
+      className="sticky top-0 z-30 px-4 py-2 flex items-center justify-between"
       style={{
-        background: "rgba(245,248,244,0.88)",
-        backdropFilter: "blur(20px) saturate(180%)",
-        WebkitBackdropFilter: "blur(20px) saturate(180%)",
-        borderBottom: "1px solid rgba(92,158,42,0.12)",
-        boxShadow: "0 1px 12px rgba(0,0,0,0.06)",
+        background: "var(--paper)",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
@@ -35,7 +32,7 @@ export default function Header({ farmName }: { farmName?: string }) {
           height={28}
           className="shrink-0"
         />
-        <span className="text-base font-black tracking-tight text-gradient whitespace-nowrap">Soilify Labs</span>
+        <span className="font-display text-base whitespace-nowrap" style={{ color: "var(--ink)" }}>Soilify Labs</span>
         {farmName && (
           <span
             className="hidden sm:inline text-xs ml-1 pl-3 font-medium truncate max-w-[140px]"

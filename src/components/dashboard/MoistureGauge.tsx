@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+// Flat semantic data colors — used only to encode moisture zones
 const ZONES = [
-  { from: 0,  to: 30,  fill: "rgba(192,57,43,0.18)",  label: "Dry",     dot: "#c0392b" },
-  { from: 30, to: 70,  fill: "rgba(92,158,42,0.18)",   label: "Perfect", dot: "#5c9e2a" },
-  { from: 70, to: 100, fill: "rgba(33,118,174,0.18)",  label: "Wet",     dot: "#2176ae" },
+  { from: 0,  to: 30,  fill: "rgba(168,68,42,0.16)", label: "Dry",     dot: "#A8442A" },
+  { from: 30, to: 70,  fill: "rgba(46,107,31,0.16)", label: "Perfect", dot: "#2E6B1F" },
+  { from: 70, to: 100, fill: "rgba(62,95,138,0.16)", label: "Wet",     dot: "#3E5F8A" },
 ];
 
 export default function MoistureGauge({ value, size = 220 }: { value: number; size?: number }) {
@@ -28,9 +29,8 @@ export default function MoistureGauge({ value, size = 220 }: { value: number; si
     return () => cancelAnimationFrame(frame);
   }, [clamped]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const color     = clamped < 30 ? "#c0392b" : clamped > 70 ? "#2176ae" : "#5c9e2a";
-  const glowColor = clamped < 30 ? "rgba(192,57,43,0.22)" : clamped > 70 ? "rgba(33,118,174,0.22)" : "rgba(92,158,42,0.22)";
-  const label     = clamped < 30 ? "Dry — Water Now" : clamped > 70 ? "Wet — Hold Off" : "Perfect";
+  const color = clamped < 30 ? "#A8442A" : clamped > 70 ? "#3E5F8A" : "#2E6B1F";
+  const label = clamped < 30 ? "Dry — Water Now" : clamped > 70 ? "Wet — Hold Off" : "Perfect";
 
   const stroke = 16;
   const radius = (size - stroke) / 2;
@@ -64,14 +64,6 @@ export default function MoistureGauge({ value, size = 220 }: { value: number; si
   return (
     <div className="inline-flex flex-col items-center gap-3">
       <div className="relative inline-flex flex-col items-center">
-        <div
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: size + 20, height: size + 20, top: -10, left: -10,
-            background: `radial-gradient(circle, ${glowColor} 0%, transparent 68%)`,
-            transition: "background 0.8s ease",
-          }}
-        />
         <svg width={size} height={size}>
           {/* Three zone tracks */}
           {ZONES.map((z) => (
@@ -101,7 +93,7 @@ export default function MoistureGauge({ value, size = 220 }: { value: number; si
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="font-black leading-none" style={{ color, fontSize: size * 0.22, transition: "color 0.6s" }}>
             {displayed}
-            <span style={{ fontSize: size * 0.11, color: "#9aaa9a", fontWeight: 500 }}>%</span>
+            <span style={{ fontSize: size * 0.11, color: "var(--ink-soft)", fontWeight: 500 }}>%</span>
           </span>
           <span className="mt-1 font-semibold tracking-wide" style={{ color, fontSize: size * 0.065, transition: "color 0.6s" }}>
             {label}
@@ -114,7 +106,7 @@ export default function MoistureGauge({ value, size = 220 }: { value: number; si
         {ZONES.map((z) => (
           <div key={z.label} className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: z.dot }} />
-            <span className="text-xs font-medium" style={{ color: "#9aaa9a" }}>{z.label}</span>
+            <span className="text-xs font-medium" style={{ color: "var(--ink-soft)" }}>{z.label}</span>
           </div>
         ))}
       </div>

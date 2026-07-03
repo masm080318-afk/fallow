@@ -19,11 +19,8 @@ export default function Navbar() {
     <nav className="fixed bottom-0 left-0 right-0 z-30 pb-[env(safe-area-inset-bottom)]">
       <div
         style={{
-          background: "rgba(245,248,244,0.92)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderTop: "1px solid rgba(92,158,42,0.1)",
-          boxShadow: "0 -4px 20px rgba(0,0,0,0.07)",
+          background: "var(--paper)",
+          borderTop: "1px solid var(--border)",
         }}
       >
         <ul className="grid grid-cols-5 max-w-lg mx-auto">
@@ -47,7 +44,7 @@ export default function Navbar() {
                   <span
                     className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200"
                     style={active ? {
-                      background: "rgba(92,158,42,0.1)",
+                      background: "rgba(46,107,31,0.1)",
                     } : undefined}
                   >
                     <Icon size={19} strokeWidth={active ? 2.4 : 1.8} />

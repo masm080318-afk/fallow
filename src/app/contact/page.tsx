@@ -32,34 +32,19 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col" style={{ background: "var(--ink)" }}>
+      <PublicNav />
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden" style={{ minHeight: "40vh" }}>
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=1400&q=85"
-            alt="Seedlings in soil"
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/85" />
-        </div>
-
-        <div className="relative z-10 flex flex-col" style={{ minHeight: "40vh" }}>
-          <PublicNav />
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16">
-            <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4" style={{ color: "var(--green-bright)" }}>Reserve your spot</p>
-            <h1 className="text-4xl sm:text-6xl font-black text-white leading-tight tracking-tight">
-              Pre-order your<br />
-              <span style={{ color: "var(--green-bright)" }}>Soilify Kit</span>
-            </h1>
-            <p className="mt-5 text-white/60 max-w-sm leading-relaxed">
-              No payment now. We&apos;ll reach out with pricing and shipping once kits are ready.
-            </p>
-          </div>
+      <section className="px-6 py-20" style={{ background: "var(--ink)" }}>
+        <div className="max-w-5xl mx-auto">
+          <p className="section-label mb-4" style={{ color: "rgba(255,255,255,0.5)" }}>Reserve your spot</p>
+          <h1 className="font-display text-4xl sm:text-6xl text-white leading-[1.05]">
+            Pre-order your <span style={{ color: "var(--accent)" }}>Soilify Kit</span>
+          </h1>
+          <p className="mt-5 max-w-md leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
+            No payment now. We&apos;ll reach out with pricing and shipping once kits are ready.
+          </p>
         </div>
       </section>
 
@@ -78,7 +63,7 @@ export default function ContactPage() {
                 { icon: Package, title: "Everything to get started",  desc: "Cables, weatherproof housing, and a step-by-step setup guide included." },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="glass-card-dark p-5 flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(125,212,79,0.12)" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(46,107,31,0.12)" }}>
                     <Icon size={17} style={{ color: "var(--green-bright)" }} />
                   </div>
                   <div>
@@ -88,8 +73,8 @@ export default function ContactPage() {
                 </div>
               ))}
 
-              <div className="glass-card-dark p-5 flex gap-4 items-start" style={{ borderColor: "rgba(125,212,79,0.2)" }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(125,212,79,0.12)" }}>
+              <div className="glass-card-dark p-5 flex gap-4 items-start" style={{ borderColor: "rgba(46,107,31,0.2)" }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(46,107,31,0.12)" }}>
                   <Leaf size={17} style={{ color: "var(--green-bright)" }} />
                 </div>
                 <div>

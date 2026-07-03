@@ -51,46 +51,37 @@ export default function WelcomeTour() {
   return (
     <div
       className="tour-backdrop fixed inset-0 z-50 flex items-center justify-center px-6"
-      style={{
-        background: "rgba(13,26,10,0.55)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-      }}
+      style={{ background: "rgba(26,29,23,0.6)" }}
       role="dialog"
       aria-modal="true"
       aria-label="Welcome tour"
     >
       {/* key remounts the card per slide so the pop-in replays */}
-      <div key={slide} className="tour-card w-full max-w-sm rounded-3xl bg-white p-7 text-center shadow-2xl">
-
-        {/* Animated icon */}
-        <div className="relative w-16 h-16 mx-auto mb-5">
-          <span className="tour-ring" />
-          <span className="tour-ring" />
-          <div
-            className="relative w-16 h-16 rounded-full flex items-center justify-center animate-float"
-            style={{
-              background: "linear-gradient(135deg, #7dd44f, #4a8020)",
-              boxShadow: "0 8px 24px rgba(92,158,42,0.35)",
-            }}
-          >
-            <Icon size={28} color="#fff" />
-          </div>
+      <div
+        key={slide}
+        className="tour-card w-full max-w-sm rounded-2xl p-8"
+        style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+      >
+        <div
+          className="flex items-center justify-center mb-6"
+          style={{ width: 56, height: 56, borderRadius: 8, background: "var(--accent)" }}
+        >
+          <Icon size={24} color="#fff" />
         </div>
 
-        <h2 className="text-lg font-black mb-2">{title}</h2>
-        <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--muted)" }}>{text}</p>
+        <h2 className="font-display text-xl mb-2">{title}</h2>
+        <p className="text-sm leading-relaxed mb-6" style={{ color: "var(--ink-soft)" }}>{text}</p>
 
         {/* Progress dots */}
-        <div className="flex items-center justify-center gap-1.5 mb-6">
+        <div className="flex items-center gap-2 mb-6">
           {SLIDES.map((_, i) => (
             <span
               key={i}
               className="rounded-full transition-all duration-300"
               style={{
-                width: i === slide ? 20 : 6,
-                height: 6,
-                background: i === slide ? "var(--green)" : "var(--border)",
+                width: i === slide ? 24 : 8,
+                height: 8,
+                background: i === slide ? "var(--accent)" : "var(--border)",
               }}
             />
           ))}
@@ -100,15 +91,15 @@ export default function WelcomeTour() {
           {!isLast && (
             <button
               onClick={dismiss}
-              className="flex-1 rounded-xl py-2.5 text-sm font-semibold !min-h-0 !bg-transparent !border-0"
-              style={{ color: "var(--muted)" }}
+              className="flex-1 rounded-lg py-2 text-sm font-semibold !min-h-0 !bg-transparent !border-0 transition-colors hover:text-[var(--ink)]"
+              style={{ color: "var(--ink-soft)" }}
             >
               Skip
             </button>
           )}
           <button
             onClick={() => (isLast ? dismiss() : setSlide((s) => s + 1))}
-            className="btn-primary flex-1 !min-h-0 !py-2.5 text-sm"
+            className="btn-primary flex-1 !min-h-0 !py-2 text-sm"
           >
             {isLast ? "Show me my farm" : "Next"} <ArrowRight size={14} />
           </button>

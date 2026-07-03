@@ -6,7 +6,7 @@ import type { Diagnosis } from "@/types";
 import CardHeader from "./CardHeader";
 
 const statusConfig = {
-  Healthy:      { icon: CheckCircle2,  color: "text-green",  bg: "rgba(92,158,42,0.08)",   border: "rgba(92,158,42,0.2)" },
+  Healthy:      { icon: CheckCircle2,  color: "text-green",  bg: "rgba(46,107,31,0.08)",   border: "rgba(46,107,31,0.2)" },
   "Water Soon": { icon: AlertTriangle, color: "text-yellow", bg: "rgba(184,134,11,0.08)",  border: "rgba(184,134,11,0.2)" },
   "Water Now":  { icon: AlertOctagon,  color: "text-red",    bg: "rgba(192,57,43,0.08)",   border: "rgba(192,57,43,0.2)" },
 } as const;

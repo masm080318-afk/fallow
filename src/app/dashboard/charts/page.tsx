@@ -151,7 +151,7 @@ export default function ChartsPage() {
         {/* Range selector */}
         <div
           className="flex gap-1 p-1 rounded-xl"
-          style={{ background: "rgba(92,158,42,0.06)", border: "1px solid rgba(92,158,42,0.12)" }}
+          style={{ background: "rgba(46,107,31,0.06)", border: "1px solid rgba(46,107,31,0.12)" }}
         >
           {ranges.map((r) => (
             <button
@@ -160,7 +160,7 @@ export default function ChartsPage() {
               className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all duration-150 !min-h-0"
               style={
                 range === r.key
-                  ? { background: "var(--green)", color: "#fff", boxShadow: "0 2px 8px rgba(92,158,42,0.3)" }
+                  ? { background: "var(--green)", color: "#fff", boxShadow: "0 2px 8px rgba(46,107,31,0.3)" }
                   : { color: "var(--muted)" }
               }
             >
@@ -175,8 +175,8 @@ export default function ChartsPage() {
           className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all !min-h-0"
           style={
             comparing
-              ? { background: "rgba(92,158,42,0.15)", border: "1px solid rgba(92,158,42,0.35)", color: "var(--green)" }
-              : { background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--muted)" }
+              ? { background: "rgba(46,107,31,0.15)", border: "1px solid rgba(46,107,31,0.35)", color: "var(--green)" }
+              : { background: "rgba(46,107,31,0.05)", border: "1px solid rgba(46,107,31,0.12)", color: "var(--muted)" }
           }
         >
           <GitCompare size={12} /> Compare
@@ -193,7 +193,7 @@ export default function ChartsPage() {
             href="/api/export"
             download
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-150"
-            style={{ background: "rgba(92,158,42,0.07)", border: "1px solid rgba(92,158,42,0.14)", color: "var(--green)" }}
+            style={{ background: "rgba(46,107,31,0.07)", border: "1px solid rgba(46,107,31,0.14)", color: "var(--green)" }}
           >
             <Download size={12} /> CSV
           </a>
@@ -204,7 +204,7 @@ export default function ChartsPage() {
       {comparing && (
         <div
           className="text-xs px-3 py-2 rounded-xl"
-          style={{ background: "rgba(92,158,42,0.05)", border: "1px solid rgba(92,158,42,0.12)", color: "var(--muted)" }}
+          style={{ background: "rgba(46,107,31,0.05)", border: "1px solid rgba(46,107,31,0.12)", color: "var(--muted)" }}
         >
           Showing dashed lines for the previous {range} for comparison.
         </div>

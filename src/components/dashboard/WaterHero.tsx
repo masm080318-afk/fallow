@@ -32,31 +32,24 @@ export default function WaterHero() {
   }, []);
 
   if (loading) {
-    return (
-      <div
-        className="rounded-2xl p-5 animate-pulse"
-        style={{ background: "rgba(92,158,42,0.07)", border: "1px solid rgba(92,158,42,0.12)", minHeight: 88 }}
-      />
-    );
+    return <div className="skeleton w-full" style={{ height: 88 }} />;
   }
 
   if (needsLocation) {
     return (
       <a
         href="/dashboard/settings"
-        className="block rounded-2xl p-5 transition-transform hover:-translate-y-0.5"
-        style={{ background: "linear-gradient(135deg, rgba(92,158,42,0.1), rgba(92,158,42,0.04))", border: "1px solid rgba(92,158,42,0.2)" }}
+        className="flex items-center gap-4 rounded-2xl p-6 transition-colors hover:border-[var(--accent)]"
+        style={{ background: "var(--accent-wash)", border: "1px solid var(--border)" }}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(92,158,42,0.12)" }}>
-            <MapPin size={18} style={{ color: "var(--green)" }} />
-          </div>
-          <div>
-            <p className="font-bold text-sm">Add your farm location</p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-              One tap in Settings unlocks daily &ldquo;water or skip&rdquo; advice →
-            </p>
-          </div>
+        <div className="icon-chip">
+          <MapPin size={16} />
+        </div>
+        <div>
+          <p className="font-bold text-sm">Add your farm location</p>
+          <p className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>
+            One tap in Settings unlocks daily watering advice
+          </p>
         </div>
       </a>
     );
@@ -68,42 +61,38 @@ export default function WaterHero() {
 
   return (
     <div
-      className="rounded-2xl p-5 relative overflow-hidden"
-      style={{
-        background: isWater
-          ? "linear-gradient(135deg, #2471a3, #3498db)"
-          : "linear-gradient(135deg, #4a8020, #5c9e2a)",
-        boxShadow: isWater
-          ? "0 8px 28px rgba(41,128,185,0.3)"
-          : "0 8px 28px rgba(92,158,42,0.28)",
-      }}
+      className="rounded-2xl p-6"
+      style={
+        isWater
+          ? { background: "var(--ink)" }
+          : { background: "var(--surface)", border: "1px solid var(--border)", borderLeft: "4px solid var(--accent)" }
+      }
     >
-      {/* Soft decorative circle */}
-      <div
-        className="absolute -right-8 -top-10 w-36 h-36 rounded-full pointer-events-none"
-        style={{ background: "rgba(255,255,255,0.09)" }}
-      />
-      <div
-        className="absolute -right-2 top-8 w-20 h-20 rounded-full pointer-events-none"
-        style={{ background: "rgba(255,255,255,0.07)" }}
-      />
-
-      <div className="flex items-center gap-4 relative">
+      <div className="flex items-start gap-4">
         <div
-          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: "rgba(255,255,255,0.18)" }}
+          className="flex items-center justify-center shrink-0"
+          style={{
+            width: 48, height: 48, borderRadius: 8,
+            background: isWater ? "rgba(255,255,255,0.12)" : "var(--accent-wash)",
+          }}
         >
           {isWater
-            ? <Droplets size={24} color="#fff" />
-            : <CircleCheck size={24} color="#fff" />}
+            ? <Droplets size={22} color="#fff" />
+            : <CircleCheck size={22} style={{ color: "var(--accent)" }} />}
         </div>
         <div className="min-w-0">
-          <p className="text-xl sm:text-2xl font-black text-white leading-tight">
+          <p
+            className="font-display text-xl sm:text-2xl leading-tight"
+            style={{ color: isWater ? "#fff" : "var(--ink)" }}
+          >
             {isWater
               ? <>Water today{data.recommend_mm ? ` — ${data.recommend_mm} mm` : ""}</>
               : <>You&apos;re good — no watering needed</>}
           </p>
-          <p className="text-xs sm:text-sm mt-1 leading-snug" style={{ color: "rgba(255,255,255,0.75)" }}>
+          <p
+            className="text-xs sm:text-sm mt-1 leading-snug"
+            style={{ color: isWater ? "rgba(255,255,255,0.65)" : "var(--ink-soft)" }}
+          >
             {data.recommend_reason}
           </p>
         </div>

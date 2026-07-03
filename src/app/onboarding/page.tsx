@@ -18,8 +18,8 @@ const glassInputStyle: React.CSSProperties = {
   minHeight: 44,
 };
 const glassInputFocus: React.CSSProperties = {
-  borderColor: "rgba(125,212,79,0.5)",
-  boxShadow: "0 0 0 3px rgba(125,212,79,0.1)",
+  borderColor: "rgba(46,107,31,0.5)",
+  boxShadow: "0 0 0 3px rgba(46,107,31,0.1)",
 };
 
 function GlassInput({
@@ -157,11 +157,9 @@ export default function OnboardingPage() {
             disabled={locStatus === "getting"}
             className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold transition-all !min-h-0"
             style={{
-              background: locationSet && !manualLoc
-                ? "rgba(125,212,79,0.15)"
-                : "linear-gradient(135deg, rgba(125,212,79,0.22), rgba(92,158,42,0.12))",
-              border: "1px solid rgba(125,212,79,0.35)",
-              color: "var(--green-bright)",
+              background: locationSet && !manualLoc ? "var(--accent)" : "rgba(255,255,255,0.06)",
+              border: locationSet && !manualLoc ? "1px solid var(--accent)" : "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
             }}
           >
             <MapPin size={16} />
@@ -247,25 +245,18 @@ export default function OnboardingPage() {
           {/* The code */}
           <div
             className="rounded-2xl py-5 px-4 text-center relative"
-            style={{
-              background: "linear-gradient(135deg, rgba(125,212,79,0.16), rgba(92,158,42,0.06))",
-              border: "1px solid rgba(125,212,79,0.3)",
-              boxShadow: "0 0 32px rgba(125,212,79,0.12)",
-            }}
+            style={{ background: "var(--accent)" }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 mb-2">Your pairing code</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>Your pairing code</p>
             <div className="flex items-center justify-center gap-3">
-              <span
-                className="text-4xl font-black tracking-[0.25em]"
-                style={{ color: "var(--green-bright)", textShadow: "0 0 24px rgba(125,212,79,0.4)" }}
-              >
+              <span className="font-display text-4xl tracking-[0.2em] text-white">
                 {pairCode ?? "······"}
               </span>
               {pairCode && (
                 <button
                   onClick={copyCode}
                   className="w-9 h-9 flex items-center justify-center rounded-lg !min-h-0 !p-0 !border-0 shrink-0"
-                  style={{ background: "rgba(125,212,79,0.15)", color: "var(--green-bright)" }}
+                  style={{ background: "rgba(255,255,255,0.2)", color: "#fff" }}
                   aria-label="Copy code"
                 >
                   {copied ? <Check size={15} /> : <Copy size={15} />}
@@ -287,7 +278,7 @@ export default function OnboardingPage() {
               <div key={i} className="flex items-center gap-3 rounded-xl px-3.5 py-3"
                 style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}>
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(125,212,79,0.12)" }}>
+                  style={{ background: "rgba(46,107,31,0.12)" }}>
                   <Icon size={14} style={{ color: "var(--green-bright)" }} />
                 </div>
                 <p className="text-xs text-white/65 leading-snug">
@@ -312,27 +303,14 @@ export default function OnboardingPage() {
   const isAlertStep = step === 2;
 
   return (
-    <main className="min-h-screen relative flex flex-col items-center justify-center px-6 py-10 overflow-hidden">
-
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&q=80"
-          alt="Corn crop rows"
-          fill
-          sizes="100vw"
-          className="object-cover object-center"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/65 to-black/88" />
-      </div>
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-10" style={{ background: "var(--ink)" }}>
 
       <div className="relative z-10 w-full max-w-md">
 
         {/* Brand */}
-        <div className="flex items-center justify-center gap-2.5 mb-8">
+        <div className="flex items-center gap-2 mb-8">
           <Image src="/logo-icon.png" alt="" width={28} height={28} />
-          <span className="text-base font-black text-white tracking-tight">Soilify Labs</span>
+          <span className="font-display text-base text-white">Soilify Labs</span>
         </div>
 
         {/* Progress bar */}
@@ -341,7 +319,7 @@ export default function OnboardingPage() {
             <div
               key={i}
               className="h-1 flex-1 rounded-full transition-all duration-300"
-              style={{ background: i <= step ? "var(--green-bright)" : "rgba(255,255,255,0.12)" }}
+              style={{ background: i <= step ? "var(--accent)" : "rgba(255,255,255,0.14)" }}
             />
           ))}
         </div>
@@ -350,17 +328,14 @@ export default function OnboardingPage() {
         <div
           className="rounded-2xl p-7"
           style={{
-            background: "rgba(255,255,255,0.07)",
-            backdropFilter: "blur(24px) saturate(160%)",
-            WebkitBackdropFilter: "blur(24px) saturate(160%)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            boxShadow: "0 8px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.07)",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.14)",
           }}
         >
-          <p className="text-xs font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: "var(--green-bright)" }}>
+          <p className="section-label mb-2" style={{ color: "var(--accent)" }}>
             Step {step + 1} of {steps.length}
           </p>
-          <h2 className="text-xl font-black text-white mb-1">{current.title}</h2>
+          <h2 className="font-display text-xl text-white mb-1">{current.title}</h2>
           <p className="text-sm text-white/40 mb-6">{current.subtitle}</p>
 
           {current.body}
@@ -395,9 +370,8 @@ export default function OnboardingPage() {
                 onClick={() => { router.push("/dashboard"); router.refresh(); }}
                 className="flex items-center gap-2 flex-1 justify-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 !min-h-0"
                 style={{
-                  background: "linear-gradient(135deg, #5c9e2a, #4a8020)",
+                  background: "var(--accent)",
                   color: "#fff",
-                  boxShadow: "0 4px 16px rgba(92,158,42,0.35)",
                 }}
               >
                 Go to dashboard <ArrowRight size={15} />
@@ -408,9 +382,8 @@ export default function OnboardingPage() {
                 disabled={creating}
                 className="flex items-center gap-2 flex-1 justify-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 disabled:opacity-50 !min-h-0"
                 style={{
-                  background: "linear-gradient(135deg, #5c9e2a, #4a8020)",
+                  background: "var(--accent)",
                   color: "#fff",
-                  boxShadow: "0 4px 16px rgba(92,158,42,0.35)",
                 }}
               >
                 {creating ? "Creating your farm…" : "Create my farm"} {!creating && <ArrowRight size={15} />}
@@ -420,11 +393,7 @@ export default function OnboardingPage() {
                 onClick={() => setStep((s) => s + 1)}
                 disabled={!current.canNext}
                 className="flex items-center gap-2 flex-1 justify-center px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-150 disabled:opacity-30 !min-h-0"
-                style={{
-                  background: "linear-gradient(135deg, #5c9e2a, #4a8020)",
-                  color: "#fff",
-                  boxShadow: current.canNext ? "0 4px 16px rgba(92,158,42,0.35)" : "none",
-                }}
+                style={{ background: "var(--accent)", color: "#fff" }}
               >
                 Continue <ArrowRight size={15} />
               </button>

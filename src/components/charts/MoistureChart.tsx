@@ -25,15 +25,15 @@ export default function MoistureChart({
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm uppercase tracking-wider text-muted">Soil moisture</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="section-label">Soil moisture</h3>
         {hasPrev && (
-          <div className="flex items-center gap-3 text-xs text-muted">
+          <div className="flex items-center gap-3 text-xs" style={{ color: "var(--ink-soft)" }}>
             <span className="flex items-center gap-1">
-              <span className="inline-block w-4 h-0.5" style={{ background: "#22c55e" }} /> Now
+              <span className="inline-block w-4 h-0.5" style={{ background: "#2E6B1F" }} /> Now
             </span>
             <span className="flex items-center gap-1">
-              <span className="inline-block w-4 h-0.5 border-t-2 border-dashed" style={{ borderColor: "#22c55e", opacity: 0.4 }} /> Prev
+              <span className="inline-block w-4 h-0.5 border-t-2 border-dashed" style={{ borderColor: "#2E6B1F", opacity: 0.4 }} /> Prev
             </span>
           </div>
         )}
@@ -41,12 +41,12 @@ export default function MoistureChart({
       <div className="h-64 -mx-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 12, left: -10, bottom: 0 }}>
-            <CartesianGrid stroke="#dfe8dc" strokeDasharray="3 3" />
-            <XAxis dataKey="label" stroke="#9aaa9a" fontSize={11} tickLine={false} />
-            <YAxis stroke="#9aaa9a" fontSize={11} domain={[0, 100]} tickLine={false} unit="%" />
+            <CartesianGrid stroke="#DCDAD1" strokeDasharray="3 3" />
+            <XAxis dataKey="label" stroke="#5C6156" fontSize={11} tickLine={false} />
+            <YAxis stroke="#5C6156" fontSize={11} domain={[0, 100]} tickLine={false} unit="%" />
             <Tooltip
-              contentStyle={{ background: "#ffffff", border: "1px solid #dfe8dc", borderRadius: 8, fontSize: 12, color: "#1c2c1a" }}
-              labelStyle={{ color: "#1c2c1a" }}
+              contentStyle={{ background: "#ffffff", border: "1px solid #DCDAD1", borderRadius: 8, fontSize: 12, color: "#1A1D17" }}
+              labelStyle={{ color: "#1A1D17" }}
               formatter={(val, name) => [
                 val != null ? `${val}%` : "—",
                 name === "moisture" ? "Moisture" : "Prev period",
@@ -54,13 +54,13 @@ export default function MoistureChart({
             />
             <ReferenceLine
               y={threshold}
-              stroke="#ef4444"
+              stroke="#A8442A"
               strokeDasharray="4 4"
-              label={{ value: `Threshold ${threshold}%`, fill: "#ef4444", fontSize: 10, position: "insideTopRight" }}
+              label={{ value: `Threshold ${threshold}%`, fill: "#A8442A", fontSize: 10, position: "insideTopRight" }}
             />
-            <Line type="monotone" dataKey="moisture" stroke="#22c55e" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: "#22c55e" }} name="moisture" />
+            <Line type="monotone" dataKey="moisture" stroke="#2E6B1F" strokeWidth={2.5} dot={false} activeDot={{ r: 4, fill: "#2E6B1F" }} name="moisture" />
             {hasPrev && (
-              <Line type="monotone" dataKey="prevMoisture" stroke="#22c55e" strokeWidth={1.5} dot={false} strokeDasharray="3 3" strokeOpacity={0.4} activeDot={{ r: 3 }} name="prevMoisture" connectNulls />
+              <Line type="monotone" dataKey="prevMoisture" stroke="#2E6B1F" strokeWidth={1.5} dot={false} strokeDasharray="3 3" strokeOpacity={0.4} activeDot={{ r: 3 }} name="prevMoisture" connectNulls />
             )}
           </LineChart>
         </ResponsiveContainer>

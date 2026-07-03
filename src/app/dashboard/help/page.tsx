@@ -43,13 +43,13 @@ export default function HelpPage() {
       {/* Page header */}
       <div className="flex items-center gap-3">
         <div
-          className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: "linear-gradient(135deg, #7dd44f, #4a8020)", boxShadow: "0 6px 18px rgba(92,158,42,0.3)" }}
+          className="flex items-center justify-center shrink-0"
+          style={{ width: 44, height: 44, borderRadius: 8, background: "var(--accent)" }}
         >
           <LifeBuoy size={20} color="#fff" />
         </div>
         <div>
-          <h1 className="text-lg font-black leading-tight">Help &amp; guide</h1>
+          <h1 className="font-display text-lg leading-tight">Help &amp; guide</h1>
           <p className="text-xs" style={{ color: "var(--muted)" }}>Everything you need, in plain language</p>
         </div>
       </div>
