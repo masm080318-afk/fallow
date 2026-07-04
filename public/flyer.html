@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soilify Labs — Farmer Flyer</title>
+<style>
+  :root { --ink:#1A1D17; --paper:#F4F3EE; --accent:#2E6B1F; --soft:#5C6156; --line:#DCDAD1; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--paper); display:flex; flex-direction:column; align-items:center; gap:20px; padding:24px; }
+  .serif { font-family: Georgia, "Times New Roman", serif; letter-spacing:-0.01em; }
+  .flyer { width:100%; max-width:680px; background:#fff; border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .top { background:var(--ink); color:#fff; padding:36px; }
+  .brand { font-size:14px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#B7C9AE; }
+  .head { font-size:44px; line-height:1.08; margin:16px 0 12px; font-weight:600; }
+  .sub { font-size:19px; line-height:1.5; color:rgba(255,255,255,0.82); max-width:34ch; }
+  .body { padding:36px; }
+  .label { font-size:13px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin:0 0 16px; }
+  .steps { display:flex; flex-direction:column; gap:16px; margin-bottom:36px; }
+  .step { display:flex; align-items:center; gap:16px; }
+  .num { flex:none; width:48px; height:48px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; }
+  .step p { font-size:20px; line-height:1.35; }
+  .why { list-style:none; }
+  .why li { display:flex; align-items:flex-start; gap:12px; font-size:19px; line-height:1.4; padding:12px 0; border-bottom:1px solid var(--line); }
+  .why li:last-child { border-bottom:0; }
+  .tick { flex:none; width:26px; height:26px; border-radius:6px; background:#E9EFE4; color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px; margin-top:2px; }
+  .price { background:var(--accent); color:#fff; padding:28px 36px; }
+  .price .big { font-size:40px; font-weight:700; }
+  .price .small { font-size:18px; color:rgba(255,255,255,0.85); margin-top:4px; }
+  .cta { padding:26px 36px 32px; }
+  .cta .go { font-size:23px; font-weight:700; }
+  .cta .web { font-size:28px; font-weight:700; color:var(--accent); margin-top:6px; }
+  .cta .note { font-size:16px; color:var(--soft); margin-top:10px; }
+  .printbtn { border:1px solid var(--line); background:#fff; color:var(--ink); font-size:15px; font-weight:600; padding:12px 24px; border-radius:8px; cursor:pointer; font-family:inherit; }
+  .printbtn:hover { border-color:var(--accent); color:var(--accent); }
+  @media print {
+    body { background:#fff; padding:0; }
+    .printbtn { display:none; }
+    .flyer { border:none; border-radius:0; max-width:100%; }
+  }
+</style>
+</head>
+<body>
+  <div class="flyer">
+    <div class="top">
+      <div class="brand">Soilify Labs</div>
+      <div class="head serif">Know exactly when to water.</div>
+      <div class="sub">A small sensor sits in your soil and tells your phone if your crops need water today &mdash; or not.</div>
+    </div>
+
+    <div class="body">
+      <p class="label">How it works</p>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><p>Put the sensor in your soil.</p></div>
+        <div class="step"><div class="num">2</div><p>It checks the soil every 15 minutes, day and night.</p></div>
+        <div class="step"><div class="num">3</div><p>Your phone tells you: <strong>water today</strong>, or <strong>wait</strong>.</p></div>
+      </div>
+
+      <p class="label">Why farmers like it</p>
+      <ul class="why">
+        <li><span class="tick">&#10003;</span><span>Save water &mdash; don&rsquo;t water when the soil doesn&rsquo;t need it.</span></li>
+        <li><span class="tick">&#10003;</span><span>Healthier crops &mdash; never let the soil get too dry.</span></li>
+        <li><span class="tick">&#10003;</span><span>Get a text message the moment your soil is dry.</span></li>
+        <li><span class="tick">&#10003;</span><span>Check your farm from anywhere, right on your phone.</span></li>
+      </ul>
+    </div>
+
+    <div class="price">
+      <div class="big">$20, one time.</div>
+      <div class="small">The app is free forever. No monthly bills.</div>
+    </div>
+
+    <div class="cta">
+      <div class="go">Want one?</div>
+      <div class="web">soilifylabs.com</div>
+      <div class="note">Visit the website to reserve your kit. No payment now.</div>
+    </div>
+  </div>
+
+  <button class="printbtn" onclick="window.print()">Print this flyer</button>
+</body>
+</html>
