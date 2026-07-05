@@ -13,6 +13,7 @@ export default function PublicFooter() {
           <Link href="/about"   className="hover:text-white transition-colors">About</Link>
           <Link href="/mission" className="hover:text-white transition-colors">Mission</Link>
           <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
           <Link href="/login"   className="hover:text-white transition-colors">Sign in</Link>
         </div>
         <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>© 2026 Soilify Labs</p>

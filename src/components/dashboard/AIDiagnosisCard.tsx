@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Sparkles, CheckCircle2, AlertTriangle, AlertOctagon, Loader2, Camera, Radio } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { Camera as NativeCamera, CameraResultType, CameraSource } from "@capacitor/camera";
 import type { Diagnosis } from "@/types";
 import CardHeader from "./CardHeader";
 
@@ -41,15 +43,9 @@ export default function AIDiagnosisCard({
     setLoading(false);
   };
 
-  const runPhotoDiagnosis = async (file: File) => {
+  const runPhotoDiagnosisBase64 = async (base64: string) => {
     setPhotoLoading(true); setError(null);
     try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve((reader.result as string).split(",")[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
       const res = await fetch("/api/camera-ingest", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,6 +56,38 @@ export default function AIDiagnosisCard({
       setDiagnosis(json);
     } catch (e) { setError(e instanceof Error ? e.message : "Something went wrong"); }
     setPhotoLoading(false);
+  };
+
+  const runPhotoDiagnosis = async (file: File) => {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    await runPhotoDiagnosisBase64(base64);
+  };
+
+  const handlePhotoButtonClick = async () => {
+    if (!Capacitor.isNativePlatform()) {
+      fileRef.current?.click();
+      return;
+    }
+    // Native platform: use the real camera/photo-library picker instead of
+    // the HTML file input, for a genuinely native capture experience.
+    try {
+      const photo = await NativeCamera.getPhoto({
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Prompt,
+        quality: 80,
+        allowEditing: false,
+      });
+      if (photo.base64String) await runPhotoDiagnosisBase64(photo.base64String);
+    } catch (e) {
+      // User cancelling the picker throws — not a real error, ignore it.
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!/cancel/i.test(msg)) setError("Couldn't open the camera.");
+    }
   };
 
   const requestLivePhoto = async () => {
@@ -129,7 +157,7 @@ export default function AIDiagnosisCard({
         <button onClick={runDiagnosis} disabled={busy} className="btn-primary flex-1">
           {loading ? <><Loader2 size={14} className="animate-spin" /> Analyzing…</> : <><Sparkles size={14} /> {diagnosis ? "Re-run" : "Soil diagnosis"}</>}
         </button>
-        <button onClick={() => fileRef.current?.click()} disabled={busy} className="btn-secondary flex-1">
+        <button onClick={handlePhotoButtonClick} disabled={busy} className="btn-secondary flex-1">
           {photoLoading ? <><Loader2 size={14} className="animate-spin" /> Analyzing…</> : <><Camera size={14} /> Photo</>}
         </button>
       </div>
