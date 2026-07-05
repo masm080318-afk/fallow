@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Capacitor } from "@capacitor/core";
 import {
   Plug, Wifi, KeyRound, Droplets, Gauge, Sparkles, Radio,
   PlayCircle, MessageCircle, LifeBuoy,
@@ -108,13 +109,15 @@ export default function HelpPage() {
       </div>
 
       {/* Actions */}
-      <div className="grid grid-cols-2 gap-2">
+      <div className={`grid gap-2 ${Capacitor.isNativePlatform() ? "grid-cols-1" : "grid-cols-2"}`}>
         <button onClick={replayTour} className="btn-secondary text-sm">
           <PlayCircle size={15} /> Replay the tour
         </button>
-        <a href="/contact" className="btn-secondary text-sm">
-          <MessageCircle size={15} /> Contact us
-        </a>
+        {!Capacitor.isNativePlatform() && (
+          <a href="/contact" className="btn-secondary text-sm">
+            <MessageCircle size={15} /> Contact us
+          </a>
+        )}
       </div>
     </main>
   );

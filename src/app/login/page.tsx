@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Capacitor } from "@capacitor/core";
 import { createClient } from "@/lib/supabase/client";
 import { Droplets, MessageSquare, Bell } from "lucide-react";
 
@@ -90,8 +91,12 @@ export default function LoginPage() {
 
         <div className="flex items-center gap-2 mt-6 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
           <span>Free software · No card needed</span>
-          <span>·</span>
-          <Link href="/" className="underline hover:text-white transition-colors">Back to site</Link>
+          {!Capacitor.isNativePlatform() && (
+            <>
+              <span>·</span>
+              <Link href="/" className="underline hover:text-white transition-colors">Back to site</Link>
+            </>
+          )}
         </div>
       </div>
     </main>

@@ -2,12 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CAPACITOR_DEBUG</key>
+	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Soilify Labs</string>
+	<string>Soilify Labs</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,6 +24,18 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Soilify uses the camera so you can take a photo of your crops for AI plant-health analysis.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Soilify uses your location to set your farm and give accurate weather-based watering advice.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Soilify can save crop photos to your library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Soilify lets you choose a crop photo from your library for AI plant-health analysis.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -47,13 +59,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Soilify uses the camera so you can take a photo of your crops for AI plant-health analysis.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Soilify lets you choose a crop photo from your library for AI plant-health analysis.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Soilify can save crop photos to your library.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Soilify uses your location to set your farm and give accurate weather-based watering advice.</string>
 </dict>
 </plist>

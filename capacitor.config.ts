@@ -8,11 +8,17 @@ const config: CapacitorConfig = {
   // shell at the live site below and use /public only as a fallback.
   webDir: "public",
   server: {
-    // The native app loads the deployed site directly. Update this if the
-    // domain changes. For local testing against a dev server, temporarily
-    // set url to "http://<your-mac-LAN-ip>:5179".
-    url: "https://soilifylabs.com",
+    // The native app loads the app experience directly (skipping the
+    // marketing homepage). /dashboard redirects to /login when signed
+    // out, then shows the real dashboard once authenticated. Update this
+    // if the domain changes. For local testing against a dev server,
+    // temporarily set url to "http://<your-mac-LAN-ip>:5179/dashboard".
+    url: "https://soilifylabs.com/dashboard",
     cleartext: false,
+    // Without this, WKWebView sometimes treats same-origin server-side
+    // redirects (e.g. /dashboard -> /login) as "external" navigation and
+    // kicks the user out to system Safari instead of staying in-app.
+    allowNavigation: ["soilifylabs.com", "*.soilifylabs.com"],
   },
   ios: {
     contentInset: "always",
