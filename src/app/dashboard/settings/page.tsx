@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getClientActiveFarm } from "@/lib/supabase/activeFarm";
 import type { Farm, SensorNode } from "@/types";
-import { Save, Plus, Trash2, Copy, Check, MapPin, Cpu, Settings2, Radio, Share2, Snowflake, UserX, RefreshCw, Wifi, Pencil, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, Plus, Trash2, Copy, Check, MapPin, Cpu, Settings2, Radio, Share2, Snowflake, UserX, RefreshCw, Wifi, Pencil, ChevronDown, ChevronUp, Eye } from "lucide-react";
 import { CROP_TYPES } from "@/lib/et/crop-coefficients";
 
 export default function SettingsPage() {
@@ -34,23 +35,29 @@ export default function SettingsPage() {
   const [editName, setEditName] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Owner vs shared viewer — viewers can see settings but not change them.
+  const [isOwner, setIsOwner] = useState(true);
+
   const load = async () => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { data: farmRow } = await supabase.from("farms").select("*").eq("user_id", user.id).single();
-    setFarm(farmRow as Farm);
-    if (farmRow) {
-      const { data: nodesRow } = await supabase
-        .from("sensor_nodes").select("*").eq("farm_id", farmRow.id).order("created_at");
-      setNodes((nodesRow ?? []) as SensorNode[]);
+    // Resolve the active farm — owned OR shared via an invite link.
+    const active = await getClientActiveFarm();
+    if (!active) return;
+    setFarm(active.farm);
+    setIsOwner(active.isOwner);
+
+    const { data: nodesRow } = await supabase
+      .from("sensor_nodes").select("*").eq("farm_id", active.farm.id).order("created_at");
+    setNodes((nodesRow ?? []) as SensorNode[]);
+
+    // Pairing code is an owner-only concept (server route is owner-scoped).
+    if (active.isOwner) {
+      try {
+        const res = await fetch("/api/farm/pairing-code");
+        const json = await res.json();
+        if (res.ok && json.code) setPairCode(json.code);
+      } catch { /* non-fatal */ }
     }
-    // Gateway pairing code (generated server-side on first request)
-    try {
-      const res = await fetch("/api/farm/pairing-code");
-      const json = await res.json();
-      if (res.ok && json.code) setPairCode(json.code);
-    } catch { /* non-fatal */ }
   };
 
   useEffect(() => { load(); }, []);
@@ -164,6 +171,19 @@ export default function SettingsPage() {
 
   return (
     <main className="px-4 sm:px-6 py-5 max-w-2xl mx-auto space-y-4 pb-8">
+
+      {/* Shared viewer notice */}
+      {!isOwner && (
+        <div className="card flex items-center gap-3" style={{ borderLeft: "3px solid var(--accent)" }}>
+          <div className="icon-chip"><Eye size={15} /></div>
+          <div>
+            <p className="font-bold text-sm">You&apos;re viewing a shared farm</p>
+            <p className="text-xs" style={{ color: "var(--muted)" }}>
+              You can see everything. Only the owner can change settings.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Farm info */}
       <div className="card space-y-5">
@@ -289,22 +309,27 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <button onClick={save} disabled={saving} className="btn-primary w-full">
-          <Save size={16} />
-          {saving ? "Saving…" : "Save settings"}
-        </button>
-        {savedMsg && (
-          <p className="text-sm text-center rounded-xl py-2 px-3"
-            style={{
-              color: savedMsg.startsWith("Saved") ? "var(--green)" : "var(--red)",
-              background: savedMsg.startsWith("Saved") ? "rgba(46,107,31,0.06)" : "rgba(192,57,43,0.06)",
-            }}>
-            {savedMsg}
-          </p>
+        {isOwner && (
+          <>
+            <button onClick={save} disabled={saving} className="btn-primary w-full">
+              <Save size={16} />
+              {saving ? "Saving…" : "Save settings"}
+            </button>
+            {savedMsg && (
+              <p className="text-sm text-center rounded-xl py-2 px-3"
+                style={{
+                  color: savedMsg.startsWith("Saved") ? "var(--green)" : "var(--red)",
+                  background: savedMsg.startsWith("Saved") ? "rgba(46,107,31,0.06)" : "rgba(192,57,43,0.06)",
+                }}>
+                {savedMsg}
+              </p>
+            )}
+          </>
         )}
       </div>
 
-      {/* Gateway pairing */}
+      {/* Gateway pairing (owner only) */}
+      {isOwner && (
       <div className="card space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
@@ -341,8 +366,10 @@ export default function SettingsPage() {
           Sensors appear below automatically — nothing to type or flash.
         </p>
       </div>
+      )}
 
-      {/* Share farm */}
+      {/* Share farm (owner only) */}
+      {isOwner && (
       <div className="card space-y-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(46,107,31,0.1)" }}>
@@ -379,6 +406,7 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
+      )}
 
       {/* Sensors */}
       <div className="card space-y-4">
