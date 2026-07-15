@@ -81,7 +81,12 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   const moisture = body.moisture ?? latestReading?.moisture_percent ?? 0;
-  const temperature = body.temperature ?? latestReading?.temperature_f ?? 0;
+  // Temperature is optional — most nodes are moisture-only. Keep it null
+  // (not 0) when absent so the AI doesn't think the sensor is broken.
+  const rawTemp = body.temperature ?? latestReading?.temperature_f ?? null;
+  const temperature: number | null =
+    typeof rawTemp === "number" && rawTemp !== 0 ? rawTemp : null;
+  const hasTemp = temperature !== null;
 
   const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
   const { data: historyRows } = await svcEarly
@@ -101,7 +106,7 @@ export async function POST(request: Request) {
   const hourOfDay = new Date().getHours();
   const input: DiagnosisInput = {
     moisture,
-    temperature,
+    temperature: temperature ?? 0,
     history,
     trend,
     hourOfDay,
@@ -117,16 +122,21 @@ export async function POST(request: Request) {
 
       const userPrompt = `Sensor reading from a small farm:
 - Current soil moisture: ${moisture}%
-- Soil temperature: ${temperature}°F
+${hasTemp
+  ? `- Soil temperature: ${temperature}°F`
+  : `- Soil temperature: not measured (this farm's sensor reports moisture only — this is normal, not a malfunction)`}
 - Moisture trend over last 24h: ${trend.toFixed(2)} %/hour
 - Local hour of day: ${hourOfDay}
 - Recent readings (oldest first): ${JSON.stringify(
-        history.slice(-12).map((h) => ({
-          m: h.moisture,
-          t: h.temperature,
-          at: h.created_at,
-        }))
+        history.slice(-12).map((h) => (
+          hasTemp
+            ? { m: h.moisture, t: h.temperature, at: h.created_at }
+            : { m: h.moisture, at: h.created_at }
+        ))
       )}
+
+Base your advice on soil moisture, its trend, and time of day. Do NOT ask for
+temperature or treat its absence as a problem.
 
 Respond ONLY with a single JSON object, no prose, with these exact keys:
 {

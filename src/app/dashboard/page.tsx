@@ -6,6 +6,7 @@ import PWAPrompt from "@/components/PWAPrompt";
 import ETCard from "@/components/dashboard/ETCard";
 import WaterHero from "@/components/dashboard/WaterHero";
 import WelcomeTour from "@/components/dashboard/WelcomeTour";
+import SensorList, { type SensorItem } from "@/components/dashboard/SensorList";
 import type { Reading, SensorNode, Diagnosis, Farm } from "@/types";
 import { redirect } from "next/navigation";
 
@@ -53,6 +54,27 @@ export default async function DashboardPage() {
     .from("readings").select("*").eq("farm_id", farm.id)
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
 
+  // Latest reading for EACH sensor, so multiple sensors all show up.
+  const sensors: SensorItem[] = await Promise.all(
+    ((nodes ?? []) as SensorNode[]).map(async (n) => {
+      const { data: r } = await svc
+        .from("readings")
+        .select("moisture_percent, created_at")
+        .eq("farm_id", farm.id)
+        .eq("node_id", n.node_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return {
+        id: n.id,
+        name: n.name,
+        node_id: n.node_id,
+        moisture: (r?.moisture_percent as number) ?? null,
+        created_at: (r?.created_at as string) ?? null,
+      };
+    })
+  );
+
   const { data: latestDiagnosis } = await svc
     .from("diagnoses").select("*").eq("farm_id", farm.id)
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
@@ -69,6 +91,7 @@ export default async function DashboardPage() {
         farmLat={farm.latitude ?? null}
         farmLon={farm.longitude ?? null}
       />
+      {sensors.length > 1 && <SensorList sensors={sensors} />}
       <AIDiagnosisCard diagnosis={latestDiagnosis as Diagnosis | null} farmId={farm.id} />
       <ETCard />
       <IrrigationPrediction diagnosis={latestDiagnosis as Diagnosis | null} />
