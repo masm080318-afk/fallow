@@ -31,6 +31,9 @@
 #define LORA_BUSY 13
 #define LORA_DIO1 14
 
+// Vext controls power to on-board peripherals (OLED etc). LOW = on, HIGH = off.
+#define VEXT_PIN  36
+
 // The SX1262 on this board is wired to custom SPI pins — the radio is NOT
 // on the default SPI bus. Without this explicit mapping, radio.begin()
 // hangs forever waiting on a chip it can't reach.
@@ -38,12 +41,14 @@ SPIClass hspi(HSPI);
 SX1262 radio = new Module(LORA_NSS, LORA_DIO1, LORA_RST, LORA_BUSY, hspi);
 
 // ─── SENSOR CONFIG ───────────────────────────────────────────────────────────
-#define SOIL_PIN 1
+// GPIO4 (ADC1). Do NOT use GPIO1 on the Heltec V3 — that pin is wired to the
+// on-board battery-voltage divider and will skew soil readings.
+#define SOIL_PIN 4
 
 // UPDATE THESE after running calibrate_sensor.ino (same for every node
 // using the same sensor model — calibrate once, reuse everywhere)
-const int SOIL_DRY = 2300;   // raw ADC when sensor in dry air
-const int SOIL_WET = 1000;   // raw ADC when sensor in water
+const int SOIL_DRY = 1900;   // raw ADC when sensor in dry air
+const int SOIL_WET = 900;   // raw ADC when sensor in water
 
 // ─── TIMING ──────────────────────────────────────────────────────────────────
 const uint64_t SLEEP_SECONDS = 15ULL * 60ULL; // 15 minutes
@@ -137,6 +142,14 @@ void goToSleep() {
   Serial.print(SLEEP_SECONDS);
   Serial.println(" seconds.");
   Serial.flush();
+
+  // Park the radio and cut power to peripherals before sleeping. Without
+  // this, Vext/OLED stay energised and idle draw is ~10-20 mA instead of
+  // <1 mA — which flattens an 18650 in about ten days instead of months.
+  radio.sleep();
+  pinMode(VEXT_PIN, OUTPUT);
+  digitalWrite(VEXT_PIN, HIGH);   // HIGH = Vext OFF on Heltec V3
+
   esp_sleep_enable_timer_wakeup(SLEEP_SECONDS * uS_TO_S);
   esp_deep_sleep_start();
 }

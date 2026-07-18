@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soilify Labs — User Manual</title>
+<style>
+  :root { --ink:#1A1D17; --paper:#F4F3EE; --accent:#2E6B1F; --soft:#5C6156; --line:#DCDAD1; --wash:#E9EFE4; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family: Inter, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--paper); line-height:1.55; }
+  .serif { font-family: Georgia, "Times New Roman", serif; letter-spacing:-0.01em; }
+  .page { max-width:760px; margin:0 auto; padding:40px 28px 64px; }
+
+  header.cover { background:var(--ink); color:#fff; border-radius:16px; padding:40px; margin-bottom:40px; }
+  header.cover .brand { font-size:13px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#B7C9AE; }
+  header.cover h1 { font-size:40px; line-height:1.08; margin:14px 0 10px; font-weight:600; }
+  header.cover p { font-size:17px; color:rgba(255,255,255,0.75); max-width:44ch; }
+
+  h2 { font-size:26px; font-weight:600; margin:44px 0 6px; }
+  h2 .num { color:var(--accent); }
+  h2 + .lead { color:var(--soft); margin-bottom:18px; font-size:16px; }
+  h3 { font-size:18px; font-weight:700; margin:22px 0 8px; }
+  p { margin-bottom:12px; }
+  ul, ol { margin:0 0 14px 22px; }
+  li { margin-bottom:8px; }
+  strong { color:var(--ink); }
+  .rule { height:1px; background:var(--line); margin:36px 0; border:0; }
+
+  .step { display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--line); }
+  .step:last-child { border-bottom:0; }
+  .step .n { flex:none; width:40px; height:40px; border-radius:50%; background:var(--accent); color:#fff; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .step .b { padding-top:2px; }
+  .step .b b { display:block; font-size:17px; margin-bottom:2px; }
+  .step .b span { color:var(--soft); font-size:15px; }
+
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin-bottom:14px; }
+  .card b { display:block; margin-bottom:4px; font-size:16px; }
+  .card span { color:var(--soft); font-size:15px; }
+
+  .callout { background:var(--wash); border-left:4px solid var(--accent); border-radius:8px; padding:14px 18px; margin:16px 0; font-size:15px; }
+  .callout b { color:var(--accent); }
+
+  .toc { background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:8px; }
+  .toc b { font-size:13px; text-transform:uppercase; letter-spacing:0.1em; color:var(--soft); }
+  .toc ol { margin:12px 0 0 20px; }
+  .toc a { color:var(--ink); text-decoration:none; }
+  .toc a:hover { color:var(--accent); }
+
+  .qa b { color:var(--ink); }
+  .qa { margin-bottom:14px; }
+
+  .printbtn { position:fixed; bottom:20px; right:20px; border:1px solid var(--line); background:#fff; color:var(--ink); font:600 15px Inter, sans-serif; padding:12px 22px; border-radius:8px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+  .printbtn:hover { border-color:var(--accent); color:var(--accent); }
+
+  @media print {
+    body { background:#fff; }
+    .page { max-width:100%; padding:0; }
+    .printbtn { display:none; }
+    header.cover { border-radius:0; }
+    h2 { page-break-after:avoid; }
+    .step, .card { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="cover">
+    <div class="brand">Soilify Labs</div>
+    <h1 class="serif">Your Farm Manual</h1>
+    <p>Everything you need to set up your soil sensor, read your app, and know exactly when to water. Written to be simple.</p>
+  </header>
+
+  <div class="toc">
+    <b>What's inside</b>
+    <ol>
+      <li><a href="#what">What Soilify does</a></li>
+      <li><a href="#kit">What's in your kit</a></li>
+      <li><a href="#setup">Setting it up (4 steps)</a></li>
+      <li><a href="#app">Reading your app, screen by screen</a></li>
+      <li><a href="#alerts">Getting text alerts</a></li>
+      <li><a href="#share">Sharing with family</a></li>
+      <li><a href="#trouble">When something's wrong</a></li>
+      <li><a href="#care">Caring for the hardware</a></li>
+    </ol>
+  </div>
+
+  <hr class="rule">
+
+  <h2 id="what"><span class="num">1.</span> What Soilify does</h2>
+  <p class="lead">It answers one question for you every day: should I water, or not?</p>
+  <p>A small sensor sits in your soil and measures how wet or dry it is, every 15 minutes, day and night. That reading goes to your phone. Soilify combines it with your local weather and tells you plainly: <strong>water today</strong>, or <strong>you're good, wait</strong>.</p>
+  <p>Instead of guessing or checking by hand, you glance at your phone. You save water, and your crops never get too dry without you knowing.</p>
+
+  <h2 id="kit"><span class="num">2.</span> What's in your kit</h2>
+  <div class="card"><b>The field sensor</b><span>A small weatherproof unit you push into the soil. Battery powered — lasts months. This is what reads your dirt.</span></div>
+  <div class="card"><b>The gateway</b><span>A small box that stays indoors near your WiFi router, plugged into power. It has a little screen. It listens to the sensor and sends the readings to the internet.</span></div>
+  <div class="card"><b>Cables &amp; guide</b><span>A USB power cable for the gateway and this manual.</span></div>
+  <div class="callout"><b>Why two pieces?</b> The sensor lives outside in your field and runs on battery, so it uses radio (not WiFi) to save power. The gateway sits inside on WiFi and passes the messages along. You set up the gateway once; the sensors just work.</div>
+
+  <h2 id="setup"><span class="num">3.</span> Setting it up</h2>
+  <p class="lead">About 10 minutes. You only do this once.</p>
+
+  <h3>First, create your account</h3>
+  <ol>
+    <li>On your phone, go to <strong>soilifylabs.com</strong>.</li>
+    <li>Tap <strong>Sign in</strong> and choose your Google account.</li>
+    <li>Follow the short setup: name your farm, set your location, and choose when you want alerts.</li>
+    <li>At the end you'll see a <strong>6-digit pairing code</strong>. Keep that screen open — you'll need it in a moment. (It also lives in Settings → Gateway pairing code.)</li>
+  </ol>
+
+  <h3>Then, set up the gateway</h3>
+  <div class="step"><div class="n">1</div><div class="b"><b>Plug in the gateway</b><span>Put it indoors near your WiFi router and connect the power cable. The screen lights up.</span></div></div>
+  <div class="step"><div class="n">2</div><div class="b"><b>Connect your phone to it</b><span>In your phone's WiFi settings, join the network named "Soilify-Setup". A setup page opens by itself — like the WiFi login at a hotel.</span></div></div>
+  <div class="step"><div class="n">3</div><div class="b"><b>Enter your details</b><span>Pick your home WiFi, type its password, and type the 6-digit code from the app. Tap Save.</span></div></div>
+  <div class="step"><div class="n">4</div><div class="b"><b>Put the sensor in your soil</b><span>Push the field sensor into the ground where you want to measure. Turn it on. Within 15 minutes it shows up in your app on its own.</span></div></div>
+
+  <div class="callout">The gateway's screen shows your sensor's moisture, a bar, and a big <b>WATER</b> warning if the soil gets too dry. If you ever move house or change WiFi, hold the <strong>PRG</strong> button and tap <strong>RST</strong> to open setup again.</div>
+
+  <h2 id="app"><span class="num">4.</span> Reading your app</h2>
+  <p class="lead">Here's what each part of the screen means.</p>
+  <div class="card"><b>The top banner — your answer</b><span>The big band at the top says "Water today" (and how much) or "You're good — no watering needed." This is the one thing most people check.</span></div>
+  <div class="card"><b>The moisture dial</b><span>Shows how wet your soil is right now, 0–100%. Red = dry, green = just right, blue = very wet. It updates on its own every 15 minutes.</span></div>
+  <div class="card"><b>Plant health</b><span>Tap it to get an AI check of your soil trend, or snap a photo of your crops and it tells you what it sees.</span></div>
+  <div class="card"><b>Watering forecast</b><span>Explains today's advice using the weather — how much water your crop needs versus how much rain fell.</span></div>
+  <div class="card"><b>Charts</b><span>See how your soil moisture has moved over the day and week, so you know if your watering is working.</span></div>
+  <div class="card"><b>Settings</b><span>Change your farm name, location, crop type, alert number, and see your pairing code and sensors.</span></div>
+
+  <h2 id="alerts"><span class="num">5.</span> Getting text alerts</h2>
+  <p>In <strong>Settings</strong>, add your mobile number and set the "alert threshold" — the dryness level that triggers a warning. When your soil drops below it, Soilify sends you a text so you can act. You won't get spammed; there's a quiet period between alerts.</p>
+
+  <h2 id="share"><span class="num">6.</span> Sharing with family</h2>
+  <p>In <strong>Settings → Share farm access</strong>, tap to create a link. Send it to family or a helper. When they open it and sign in, they can see your farm's live dashboard, charts, and alerts — but only you, the owner, can change settings.</p>
+
+  <h2 id="trouble"><span class="num">7.</span> When something's wrong</h2>
+  <div class="qa"><b>The app says "Offline."</b> No reading has come in for a while. Check the gateway has power and your WiFi is working. If the gateway is fine, the sensor may be too far away or its battery is low.</div>
+  <div class="qa"><b>No readings are showing up.</b> Make sure the gateway screen isn't on the setup screen (that means it hasn't connected). Re-do the gateway setup if needed. The sensor only sends every 15 minutes, so give it time.</div>
+  <div class="qa"><b>The gateway screen is blank.</b> Unplug it, wait 5 seconds, plug it back in.</div>
+  <div class="qa"><b>The watering advice won't load.</b> Make sure you set your farm location in Settings — the weather math needs it.</div>
+  <div class="qa"><b>"Soilify-Setup" WiFi doesn't appear.</b> The gateway only shows it when it isn't set up yet, or when you hold PRG and tap RST.</div>
+
+  <h2 id="care"><span class="num">8.</span> Caring for the hardware</h2>
+  <ul>
+    <li>Keep the <strong>gateway indoors</strong> and dry. It is not weatherproof.</li>
+    <li>The <strong>field sensor</strong> handles rain, but keep the electronics end above the mud line.</li>
+    <li>Charge or replace the sensor battery if the app shows it going offline often.</li>
+    <li>Clean the metal probe gently if it gets caked; don't scrub the electronics.</li>
+  </ul>
+
+  <hr class="rule">
+  <p style="color:var(--soft); font-size:15px;">Need more help? Open the app and tap the <strong>?</strong> icon for the built-in guide, or visit <strong>soilifylabs.com</strong>. &copy; 2026 Soilify Labs.</p>
+
+</div>
+<button class="printbtn" onclick="window.print()">Print / Save PDF</button>
+</body>
+</html>
