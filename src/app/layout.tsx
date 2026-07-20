@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Inter, Fraunces, Bricolage_Grotesque, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,6 +11,18 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   axes: ["opsz"],
+});
+
+// Landing-page typeset (scoped to the marketing landing page, not the app).
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  axes: ["opsz"],
+});
+
+const hanken = Hanken_Grotesk({
+  variable: "--font-hanken",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -51,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} ${fraunces.variable} ${bricolage.variable} ${hanken.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
       </body>
